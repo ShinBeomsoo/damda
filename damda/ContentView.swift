@@ -8,17 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @Environment(\.managedObjectContext) private var context
+    @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
 
-#Preview {
-    ContentView()
+    var body: some View {
+        TimerView(timerManager: timerManager)
+    }
 }
