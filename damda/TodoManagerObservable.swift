@@ -53,4 +53,8 @@ class TodoManagerObservable: ObservableObject {
         try? context.save()
         fetchTodos()
     }
+
+    var completedCount: Int {
+        todos.filter { $0.isCompleted }.count
+    }
 }
