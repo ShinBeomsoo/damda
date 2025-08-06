@@ -32,6 +32,7 @@ struct TimerView: View {
                             .buttonStyle(.borderedProminent)
                         }
                     }
+                    .frame(minWidth: 180, maxWidth: .infinity)
                     .padding()
                     .background(timerManager.currentSession == session ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
                     .cornerRadius(12)
