@@ -60,4 +60,8 @@ class TimerManagerObservable: ObservableObject {
         timer?.invalidate()
         timer = nil
     }
+
+    var totalSeconds: Int {
+        elapsedSeconds.values.reduce(0, +)
+    }
 }
