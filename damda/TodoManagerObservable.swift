@@ -54,6 +54,20 @@ class TodoManagerObservable: ObservableObject {
         fetchTodos()
     }
 
+    func dailyCompletedTodos(forDays days: Int) -> [(date: Date, count: Int)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var result: [(Date, Int)] = []
+        for i in (0..<days).reversed() {
+            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+            let count = todos.filter {
+                $0.isCompleted && Calendar.current.isDate($0.completedAt ?? Date.distantPast, inSameDayAs: date)
+            }.count
+            result.append((date, count))
+        }
+        return result
+    }
+
     var completedCount: Int {
         todos.filter { $0.isCompleted }.count
     }
