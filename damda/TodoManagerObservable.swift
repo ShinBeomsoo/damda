@@ -22,7 +22,7 @@ class TodoManagerObservable: ObservableObject {
         let fetchRequest: NSFetchRequest<Todo> = Todo.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         if let results = try? context.fetch(fetchRequest) {
-            todos = results
+            todos = results.map { $0 }
         }
     }
 
@@ -39,6 +39,7 @@ class TodoManagerObservable: ObservableObject {
 
     func toggleComplete(todo: Todo) {
         todo.isCompleted.toggle()
+        print("isCompleted:", todo.isCompleted)
         if todo.isCompleted {
             todo.completedAt = Date()
         } else {
