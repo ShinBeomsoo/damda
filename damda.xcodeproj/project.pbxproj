@@ -30,6 +30,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		440E28612E44AE74002E46FE /* Fonts */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		44C678112E437B0B0078C5B5 /* damda */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = damda;
@@ -79,6 +84,7 @@
 				44C678202E437B0C0078C5B5 /* damdaTests */,
 				44C6782A2E437B0C0078C5B5 /* damdaUITests */,
 				44C678102E437B0B0078C5B5 /* Products */,
+				440E28612E44AE74002E46FE /* Fonts */,
 			);
 			sourceTree = "<group>";
 		};
@@ -108,6 +114,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				440E28612E44AE74002E46FE /* Fonts */,
 				44C678112E437B0B0078C5B5 /* damda */,
 			);
 			name = damda;
@@ -398,6 +405,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = damda/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,6 +431,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = damda/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

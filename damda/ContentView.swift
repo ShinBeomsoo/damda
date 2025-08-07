@@ -27,7 +27,7 @@ struct ContentView: View {
                         VStack(spacing: 32) {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("오늘의 목표")
-                                    .font(.title2).bold()
+                                    .font(.custom("Pretendard-Bold", size: 22))
                                 HStack {
                                     Text("공부 시간: \(formatTime(timerManager.totalSeconds)) / 06:00:00")
                                     ProgressView(value: Double(timerManager.totalSeconds), total: Double(goalSeconds))
@@ -42,7 +42,7 @@ struct ContentView: View {
                                 }
                                 HStack {
                                     Text("연속 달성: \(streakManager.currentStreak)일 (최대: \(streakManager.maxStreak)일)")
-                                        .font(.headline)
+                                        .font(.custom("Pretendard-Bold", size: 16))
                                 }
                             }
                             .padding()
@@ -84,6 +84,7 @@ struct ContentView: View {
             .padding(.leading, 8)
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
+        .font(.custom("Pretendard-Regular", size: 16))
     }
 
     func formatTime(_ seconds: Int) -> String {

@@ -52,7 +52,7 @@ struct TodoListView: View {
                                 Image(systemName: "flag.fill")
                                     .foregroundColor(priorityColor(Int(todo.priority)))
                                 Text("\(todo.priority)")
-                                    .font(.caption)
+                                    .font(.system(size: 11))
                                     .foregroundColor(priorityColor(Int(todo.priority)))
                                 Button(action: {
                                     todoManager.toggleComplete(todo: todo)

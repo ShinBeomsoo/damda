@@ -30,58 +30,16 @@ struct CardListView: View {
 
             // 리스트만 스크롤, 5개 row 높이 고정
             ScrollView {
-                LazyVStack(spacing: 0) {
+                LazyVStack(spacing: 12) {
                     ForEach(cardManager.cards, id: \.objectID) { card in
-                        VStack(spacing: 0) {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    if editingCardID == card.objectID {
-                                        TextField("질문", text: $editingQuestion, onCommit: {
-                                            cardManager.updateCard(card: card, newQuestion: editingQuestion, newAnswer: editingAnswer)
-                                            editingCardID = nil
-                                        })
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                                        TextField("답변", text: $editingAnswer, onCommit: {
-                                            cardManager.updateCard(card: card, newQuestion: editingQuestion, newAnswer: editingAnswer)
-                                            editingCardID = nil
-                                        })
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                                        .onDisappear {
-                                            if editingCardID == card.objectID {
-                                                cardManager.updateCard(card: card, newQuestion: editingQuestion, newAnswer: editingAnswer)
-                                                editingCardID = nil
-                                            }
-                                        }
-                                    } else {
-                                        Text(card.question ?? "")
-                                            .font(.body)
-                                            .onTapGesture(count: 2) {
-                                                editingCardID = card.objectID
-                                                editingQuestion = card.question ?? ""
-                                                editingAnswer = card.answer ?? ""
-                                            }
-                                        Text(card.answer ?? "")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                            .onTapGesture(count: 2) {
-                                                editingCardID = card.objectID
-                                                editingQuestion = card.question ?? ""
-                                                editingAnswer = card.answer ?? ""
-                                            }
-                                    }
-                                }
-                                Spacer()
-                                Button(action: {
-                                    cardManager.deleteCard(card: card)
-                                }) {
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.gray)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .frame(height: rowHeight)
-                            Divider()
-                        }
+                        CardRowView(
+                            card: card,
+                            rowHeight: rowHeight,
+                            editingCardID: $editingCardID,
+                            editingQuestion: $editingQuestion,
+                            editingAnswer: $editingAnswer,
+                            cardManager: cardManager
+                        )
                     }
                 }
             }
