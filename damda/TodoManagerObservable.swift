@@ -54,6 +54,12 @@ class TodoManagerObservable: ObservableObject {
         fetchTodos()
     }
 
+    func updateTodoText(todo: Todo, newText: String) {
+        todo.text = newText
+        try? context.save()
+        fetchTodos()
+    }
+
     func dailyCompletedTodos(forDays days: Int) -> [(date: Date, count: Int)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

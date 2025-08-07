@@ -10,24 +10,43 @@ import SwiftUI
 struct TodoListView: View {
     @ObservedObject var todoManager: TodoManagerObservable
     @State private var newTodoText: String = ""
+    @State private var newTodoPriority: Int = 5
+    @State private var editingTodoID: NSManagedObjectID? = nil
+    @State private var editingText: String = ""
+
+    var sortedTodos: [Todo] {
+        todoManager.todos.sorted { $0.priority > $1.priority }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 TextField("오늘의 할 일을 입력하세요", text: $newTodoText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                Picker("우선순위", selection: $newTodoPriority) {
+                    ForEach(1...10, id: \.self) { value in
+                        Text("\(value)").tag(value)
+                    }
+                }
+                .frame(width: 60)
                 Button("추가") {
                     guard !newTodoText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    todoManager.addTodo(text: newTodoText)
+                    todoManager.addTodo(text: newTodoText, priority: Int16(newTodoPriority))
                     newTodoText = ""
+                    newTodoPriority = 5
                 }
                 .buttonStyle(.borderedProminent)
             }
             .padding(.bottom, 8)
 
             List {
-                ForEach(todoManager.todos, id: \.objectID) { todo in
+                ForEach(sortedTodos, id: \.objectID) { todo in
                     HStack {
+                        Image(systemName: "flag.fill")
+                            .foregroundColor(priorityColor(Int(todo.priority)))
+                        Text("\(todo.priority)")
+                            .font(.caption)
+                            .foregroundColor(priorityColor(Int(todo.priority)))
                         Button(action: {
                             todoManager.toggleComplete(todo: todo)
                         }) {
@@ -35,8 +54,27 @@ struct TodoListView: View {
                                 .foregroundColor(todo.isCompleted ? .blue : .red)
                         }
                         .buttonStyle(.plain)
-                        Text(todo.text ?? "")
-                            .foregroundColor(todo.isCompleted ? .blue : .red)
+                        if editingTodoID == todo.objectID {
+                            TextField("수정", text: $editingText, onCommit: {
+                                todoManager.updateTodoText(todo: todo, newText: editingText)
+                                editingTodoID = nil
+                            })
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .onDisappear {
+                                if editingTodoID == todo.objectID {
+                                    todoManager.updateTodoText(todo: todo, newText: editingText)
+                                    editingTodoID = nil
+                                }
+                            }
+                            .frame(maxWidth: 200)
+                        } else {
+                            Text(todo.text ?? "")
+                                .foregroundColor(todo.isCompleted ? .blue : .red)
+                                .onTapGesture(count: 2) {
+                                    editingTodoID = todo.objectID
+                                    editingText = todo.text ?? ""
+                                }
+                        }
                         Spacer()
                         Button(action: {
                             todoManager.deleteTodo(todo: todo)
@@ -51,5 +89,14 @@ struct TodoListView: View {
             .listStyle(.plain)
         }
         .padding()
+    }
+
+    func priorityColor(_ value: Int) -> Color {
+        switch value {
+        case 8...10: return .red
+        case 5...7: return .orange
+        case 3...4: return .yellow
+        default: return .gray
+        }
     }
 }
