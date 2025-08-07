@@ -46,6 +46,13 @@ class CardManagerObservable: ObservableObject {
         fetchCards()
     }
 
+    func updateCard(card: Card, newQuestion: String, newAnswer: String) {
+        card.question = newQuestion
+        card.answer = newAnswer
+        try? context.save()
+        fetchCards()
+    }
+
     // 오늘 복습할 카드 목록
     var todayReviewCards: [Card] {
         let today = Calendar.current.startOfDay(for: Date())
