@@ -15,10 +15,12 @@ class TimerManagerObservable: ObservableObject {
         .morning: 0, .afternoon: 0, .evening: 0
     ]
 
+    private let context: NSManagedObjectContext
     private let manager: TimerManager
     private var timer: Timer?
 
     init(context: NSManagedObjectContext) {
+        self.context = context
         self.manager = TimerManager(context: context)
         self.currentSession = manager.currentSession
         self.elapsedSeconds = manager.elapsedSeconds
@@ -63,5 +65,26 @@ class TimerManagerObservable: ObservableObject {
 
     var totalSeconds: Int {
         elapsedSeconds.values.reduce(0, +)
+    }
+
+    func dailyTimeRecords(forDays days: Int) -> [(date: Date, seconds: Int)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var result: [(Date, Int)] = []
+        for i in (0..<days).reversed() {
+            let date = calendar.date(byAdding: .day, value: -i, to: today)!
+            let fetch: NSFetchRequest<TimerRecord> = TimerRecord.fetchRequest()
+            fetch.predicate = NSPredicate(format: "date == %@", date as NSDate)
+            let records = try? self.context.fetch(fetch)
+            let record = records?.first
+            let seconds: Int
+            if let r = record {
+                seconds = Int(r.morning) + Int(r.afternoon) + Int(r.evening)
+            } else {
+                seconds = 0
+            }
+            result.append((date, seconds))
+        }
+        return result
     }
 }
