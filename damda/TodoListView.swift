@@ -14,12 +14,16 @@ struct TodoListView: View {
     @State private var editingTodoID: NSManagedObjectID? = nil
     @State private var editingText: String = ""
 
+    let rowHeight: CGFloat = 50
+    let visibleRows: CGFloat = 5
+
     var sortedTodos: [Todo] {
         todoManager.todos.sorted { $0.priority > $1.priority }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // 입력창: 항상 고정
             HStack {
                 TextField("오늘의 할 일을 입력하세요", text: $newTodoText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -39,54 +43,61 @@ struct TodoListView: View {
             }
             .padding(.bottom, 8)
 
-            List {
-                ForEach(sortedTodos, id: \.objectID) { todo in
-                    HStack {
-                        Image(systemName: "flag.fill")
-                            .foregroundColor(priorityColor(Int(todo.priority)))
-                        Text("\(todo.priority)")
-                            .font(.caption)
-                            .foregroundColor(priorityColor(Int(todo.priority)))
-                        Button(action: {
-                            todoManager.toggleComplete(todo: todo)
-                        }) {
-                            Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(todo.isCompleted ? .blue : .red)
-                        }
-                        .buttonStyle(.plain)
-                        if editingTodoID == todo.objectID {
-                            TextField("수정", text: $editingText, onCommit: {
-                                todoManager.updateTodoText(todo: todo, newText: editingText)
-                                editingTodoID = nil
-                            })
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .onDisappear {
+            // 리스트만 스크롤, 5개 row 높이 고정
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(sortedTodos, id: \.objectID) { todo in
+                        VStack(spacing: 0) {
+                            HStack {
+                                Image(systemName: "flag.fill")
+                                    .foregroundColor(priorityColor(Int(todo.priority)))
+                                Text("\(todo.priority)")
+                                    .font(.caption)
+                                    .foregroundColor(priorityColor(Int(todo.priority)))
+                                Button(action: {
+                                    todoManager.toggleComplete(todo: todo)
+                                }) {
+                                    Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(todo.isCompleted ? .blue : .red)
+                                }
+                                .buttonStyle(.plain)
                                 if editingTodoID == todo.objectID {
-                                    todoManager.updateTodoText(todo: todo, newText: editingText)
-                                    editingTodoID = nil
+                                    TextField("수정", text: $editingText, onCommit: {
+                                        todoManager.updateTodoText(todo: todo, newText: editingText)
+                                        editingTodoID = nil
+                                    })
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .onDisappear {
+                                        if editingTodoID == todo.objectID {
+                                            todoManager.updateTodoText(todo: todo, newText: editingText)
+                                            editingTodoID = nil
+                                        }
+                                    }
+                                    .frame(maxWidth: 200)
+                                } else {
+                                    Text(todo.text ?? "")
+                                        .foregroundColor(todo.isCompleted ? .blue : .red)
+                                        .onTapGesture(count: 2) {
+                                            editingTodoID = todo.objectID
+                                            editingText = todo.text ?? ""
+                                        }
                                 }
+                                Spacer()
+                                Button(action: {
+                                    todoManager.deleteTodo(todo: todo)
+                                }) {
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.gray)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .frame(maxWidth: 200)
-                        } else {
-                            Text(todo.text ?? "")
-                                .foregroundColor(todo.isCompleted ? .blue : .red)
-                                .onTapGesture(count: 2) {
-                                    editingTodoID = todo.objectID
-                                    editingText = todo.text ?? ""
-                                }
+                            .frame(height: rowHeight)
+                            Divider()
                         }
-                        Spacer()
-                        Button(action: {
-                            todoManager.deleteTodo(todo: todo)
-                        }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.gray)
-                        }
-                        .buttonStyle(.plain)
                     }
                 }
             }
-            .listStyle(.plain)
+            .frame(height: rowHeight * visibleRows)
         }
         .padding()
     }
