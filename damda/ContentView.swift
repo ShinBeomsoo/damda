@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var todoManager = TodoManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var streakManager = StreakManagerObservable(context: PersistenceController.shared.container.viewContext)
+    @StateObject private var cardManager = CardManagerObservable(context: PersistenceController.shared.container.viewContext)
 
     let goalSeconds = 6 * 60 * 60 // 6시간
     let goalTodos = 5
@@ -55,10 +56,14 @@ struct ContentView: View {
 
             Divider()
 
-            // 오른쪽 50%: Todo 리스트
-            TodoListView(todoManager: todoManager)
-                .frame(maxWidth: .infinity, alignment: .top)
-                .padding()
+            // 오른쪽 50%: Todo 리스트 + 암기 카드
+            VStack(spacing: 24) {
+                TodoListView(todoManager: todoManager)
+                CardReviewView(cardManager: cardManager)
+                CardListView(cardManager: cardManager)
+            }
+            .frame(maxWidth: .infinity, alignment: .top)
+            .padding()
         }
     }
 
