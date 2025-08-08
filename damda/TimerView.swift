@@ -17,7 +17,7 @@ struct TimerView: View {
             // 헤더
             HStack {
                 Text("학습 시간")
-                    .font(.headline)
+                    .font(.pretendard(18, weight: .semibold))
                 Spacer()
                 Button(action: { showSessionInfo.toggle() }) {
                     Image(systemName: "info.circle")
@@ -97,7 +97,7 @@ private struct SessionCardView: View {
             // 상태 표시
             HStack {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.pretendard(16, weight: .semibold))
                 Spacer()
                 if isCurrent {
                     HStack(spacing: 4) {
@@ -113,7 +113,7 @@ private struct SessionCardView: View {
             
             // 시간 표시
             Text(formatTime(seconds))
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
+                .font(.pretendard(28, weight: .bold))
                 .foregroundColor(isCurrent ? .primary : .secondary)
             
             // 시작/일시정지 버튼
@@ -122,9 +122,9 @@ private struct SessionCardView: View {
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: isCurrent ? "pause.fill" : "play.fill")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pretendard(12, weight: .bold))
                     Text(isCurrent ? "일시정지" : "시작")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.pretendard(14, weight: .semibold))
                 }
                 .foregroundColor(.white)
                 .padding(.horizontal, 16)

@@ -8,7 +8,7 @@ struct CardReviewView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("오늘 복습할 암기 카드")
-                .font(.headline)
+                .font(.pretendard(18, weight: .semibold))
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -17,7 +17,7 @@ struct CardReviewView: View {
                 
                 VStack(spacing: 16) {
                     Text(currentCard.question ?? "질문 없음")
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.pretendard(20, weight: .semibold))
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 16)
@@ -25,7 +25,7 @@ struct CardReviewView: View {
 
                     if showAnswer {
                         Text(currentCard.answer ?? "답변 없음")
-                            .font(.body)
+                            .font(.pretendard(16))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.center)
                             .padding(.vertical, 12)
@@ -34,13 +34,13 @@ struct CardReviewView: View {
                         Button(action: { 
                             withAnimation { showAnswer = true } 
                         }) {
-                            Text("답 보기")
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 10)
-                                .background(Color(hex: "E06552"))
-                                .cornerRadius(8)
+                                                    Text("답 보기")
+                            .font(.pretendard(14, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 10)
+                            .background(Color(hex: "E06552"))
+                            .cornerRadius(8)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding(.bottom, 8)
@@ -58,7 +58,7 @@ struct CardReviewView: View {
                         nextCard()
                     }) {
                         Text("모름")
-                            .fontWeight(.medium)
+                            .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -72,7 +72,7 @@ struct CardReviewView: View {
                         nextCard()
                     }) {
                         Text("애매함")
-                            .fontWeight(.medium)
+                            .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -86,7 +86,7 @@ struct CardReviewView: View {
                         nextCard()
                     }) {
                         Text("알고 있음")
-                            .fontWeight(.medium)
+                            .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -107,9 +107,9 @@ struct CardReviewView: View {
                 .padding(.top, 8)
             } else {
                 VStack(spacing: 16) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.green)
+                                                    Image(systemName: "checkmark.circle.fill")
+                                    .font(.pretendard(48))
+                                    .foregroundColor(.green)
                     Text("오늘 복습할 카드가 없습니다!")
                         .font(.headline)
                         .foregroundColor(.primary)

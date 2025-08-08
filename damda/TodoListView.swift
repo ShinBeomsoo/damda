@@ -27,7 +27,7 @@ struct TodoListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("오늘의 할 일")
-                .font(.headline)
+                .font(.pretendard(18, weight: .semibold))
             HStack {
                 TextField("오늘의 할 일을 입력하세요", text: $newTodoText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -101,7 +101,7 @@ struct TodoRowView: View {
                 Image(systemName: "flag.fill")
                     .foregroundColor(priorityColor(Int(todo.priority)))
                 Text("\(todo.priority)")
-                    .font(.system(size: 11))
+                    .font(.pretendard(11))
                     .foregroundColor(priorityColor(Int(todo.priority)))
 
                 if editingTodoID == todo.objectID {

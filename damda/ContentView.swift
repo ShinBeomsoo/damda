@@ -8,6 +8,23 @@
 import SwiftUI
 import CoreData
 
+// 커스텀 폰트 확장
+extension Font {
+    static func pretendard(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        switch weight {
+        case .black: return Font.custom("Pretendard-Black", size: size)
+        case .bold: return Font.custom("Pretendard-Bold", size: size)
+        case .heavy: return Font.custom("Pretendard-ExtraBold", size: size)
+        case .ultraLight: return Font.custom("Pretendard-ExtraLight", size: size)
+        case .light: return Font.custom("Pretendard-Light", size: size)
+        case .medium: return Font.custom("Pretendard-Medium", size: size)
+        case .semibold: return Font.custom("Pretendard-SemiBold", size: size)
+        case .thin: return Font.custom("Pretendard-Thin", size: size)
+        default: return Font.custom("Pretendard-Regular", size: size)
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var cardManager = CardManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
@@ -661,7 +678,7 @@ struct DayDetailSidebarView: View {
                 // 선택된 날짜의 상세 기록
                 VStack(alignment: .leading, spacing: 12) {
                     Text("\(selectedDate, formatter: dateFormatter) 기록")
-                        .font(.headline)
+                        .font(.pretendard(18, weight: .semibold))
                     
                     let todos = todoManager.todos.filter { todo in
                         if let completedAt = todo.completedAt {
@@ -747,8 +764,7 @@ struct TodayStudySummaryView: View {
                 Image(systemName: "clock.fill")
                     .foregroundColor(Color(hex: "E06552"))
                 Text("오늘의 공부 시간")
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                    .font(.pretendard(18, weight: .semibold))
                 Spacer()
             }
             
@@ -777,17 +793,25 @@ struct TodayStudySummaryView: View {
                     Spacer()
                 }
                 
-                HStack(spacing: 12) {
+                VStack(spacing: 8) {
                     SessionTimeCard(
                         title: "아침",
                         time: formatTime(timerManager.elapsedSeconds[.morning] ?? 0),
                         color: .orange
                     )
+                    
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                    
                     SessionTimeCard(
                         title: "오후",
                         time: formatTime(timerManager.elapsedSeconds[.afternoon] ?? 0),
                         color: .blue
                     )
+                    
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                    
                     SessionTimeCard(
                         title: "저녁",
                         time: formatTime(timerManager.elapsedSeconds[.evening] ?? 0),
@@ -821,11 +845,11 @@ struct StudyTimeCard: View {
                 .foregroundColor(color)
             
             Text(time)
-                .font(.system(size: 14, weight: .bold))
+                .font(.pretendard(14, weight: .bold))
                 .foregroundColor(.primary)
             
             Text(title)
-                .font(.system(size: 10))
+                .font(.pretendard(10))
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -844,11 +868,11 @@ struct SessionTimeCard: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(title)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pretendard(10, weight: .medium))
                 .foregroundColor(color)
             
             Text(time)
-                .font(.system(size: 12, weight: .bold))
+                .font(.pretendard(12, weight: .bold))
                 .foregroundColor(.primary)
         }
         .frame(maxWidth: .infinity)
@@ -873,8 +897,7 @@ struct PriorityTodosView: View {
                 Image(systemName: "flag.fill")
                     .foregroundColor(.orange)
                 Text("우선순위 할 일")
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                    .font(.pretendard(18, weight: .semibold))
                 Spacer()
             }
             
@@ -884,7 +907,7 @@ struct PriorityTodosView: View {
                         .font(.system(size: 24))
                         .foregroundColor(.green)
                     Text("모든 할 일 완료!")
-                        .font(.subheadline)
+                        .font(.pretendard(14))
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -916,7 +939,7 @@ struct PriorityTodoRow: View {
         HStack(spacing: 8) {
             // 순위 표시
             Text("\(rank)")
-                .font(.system(size: 12, weight: .bold))
+                .font(.pretendard(12, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 16, height: 16)
                 .background(
@@ -930,13 +953,13 @@ struct PriorityTodoRow: View {
                     .font(.system(size: 8))
                     .foregroundColor(.orange)
                 Text("\(todo.priority)")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pretendard(10, weight: .medium))
                     .foregroundColor(.orange)
             }
             
             // 할 일 텍스트
             Text(todo.text ?? "")
-                .font(.system(size: 12))
+                .font(.pretendard(12))
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
             
