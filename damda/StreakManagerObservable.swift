@@ -51,4 +51,23 @@ class StreakManagerObservable: ObservableObject {
         self.currentStreak = streak
         self.maxStreak = maxStreak
     }
+
+    // 새로 추가: 주어진 기간의 일자별 streak 상태 반환
+    func dailyStreakStatus(start: Date, end: Date) -> [Date: Bool] {
+        let fetch: NSFetchRequest<StreakRecord> = StreakRecord.fetchRequest()
+        fetch.predicate = NSPredicate(format: "date >= %@ AND date < %@", start as NSDate, end as NSDate)
+        guard let records = try? context.fetch(fetch) else { return [:] }
+        
+        let calendar = Calendar.current
+        var result: [Date: Bool] = [:]
+        
+        for record in records {
+            if let date = record.date {
+                let day = calendar.startOfDay(for: date)
+                result[day] = record.isSuccess
+            }
+        }
+        
+        return result
+    }
 }
