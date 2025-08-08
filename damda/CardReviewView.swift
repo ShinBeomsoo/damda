@@ -121,7 +121,6 @@ struct CardReviewView: View {
                 .frame(minWidth: 340, maxWidth: 480)
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
                 .padding(.horizontal, 8)
             }
         }

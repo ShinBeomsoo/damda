@@ -376,8 +376,22 @@ struct TimerSectionView: View {
     @ObservedObject var timerManager: TimerManagerObservable
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("학습 시간")
-                .font(.headline)
+            HStack {
+                Text("학습 시간")
+                    .font(.headline)
+                Spacer()
+                Button(action: { timerManager.reset() }) {
+                    Text("리셋")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color(hex: "E06552"))
+                        .cornerRadius(6)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            
             HStack(spacing: 24) {
                 ForEach([TimerSession.morning, TimerSession.afternoon, TimerSession.evening], id: \.self) { session in
                     VStack {
@@ -404,21 +418,6 @@ struct TimerSectionView: View {
                     }
                 }
             }
-            HStack {
-                Spacer()
-                Button(action: { timerManager.reset() }) {
-                    Text("리셋")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 8)
-                        .background(Color(hex: "E06552"))
-                        .cornerRadius(8)
-                }
-                .buttonStyle(PlainButtonStyle())
-                Spacer()
-            }
-            .padding(.top, 8)
         }
         .padding()
         .background(Color.gray.opacity(0.12))
@@ -640,26 +639,26 @@ struct DayDetailSidebarView: View {
     @ObservedObject var streakManager: StreakManagerObservable
     
     var body: some View {
-        VStack(spacing: 16) {
-            // 오늘의 공부 시간 요약
-            if Calendar.current.isDateInToday(selectedDate) {
-                TodayStudySummaryView(timerManager: timerManager)
-            }
-            
-            // 우선순위 높은 할 일 3개
-            if Calendar.current.isDateInToday(selectedDate) {
-                PriorityTodosView(todoManager: todoManager)
-            }
-            
-            // 캘린더
-            CalendarView(
-                selectedDate: $selectedDate,
-                records: makeRecords()
-            )
-            .frame(maxWidth: .infinity)
-            
-            // 선택된 날짜의 상세 기록
-            ScrollView {
+        ScrollView {
+            VStack(spacing: 16) {
+                // 오늘의 공부 시간 요약
+                if Calendar.current.isDateInToday(selectedDate) {
+                    TodayStudySummaryView(timerManager: timerManager)
+                }
+                
+                // 우선순위 높은 할 일 3개
+                if Calendar.current.isDateInToday(selectedDate) {
+                    PriorityTodosView(todoManager: todoManager)
+                }
+                
+                // 캘린더
+                CalendarView(
+                    selectedDate: $selectedDate,
+                    records: makeRecords()
+                )
+                .frame(maxWidth: .infinity)
+                
+                // 선택된 날짜의 상세 기록
                 VStack(alignment: .leading, spacing: 12) {
                     Text("\(selectedDate, formatter: dateFormatter) 기록")
                         .font(.headline)
@@ -692,9 +691,8 @@ struct DayDetailSidebarView: View {
                 .background(Color.gray.opacity(0.08))
                 .cornerRadius(12)
             }
-            .frame(maxWidth: .infinity)
+            .padding()
         }
-        .padding()
     }
     
     func makeRecords() -> [Date: (todos: Int, seconds: Int, streak: Bool)] {
