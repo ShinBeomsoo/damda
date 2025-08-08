@@ -56,7 +56,10 @@ struct CardListView: View {
             .padding(.bottom, 8)
 
             ScrollView {
-                LazyVStack(spacing: 12) {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ], spacing: 12) {
                     ForEach(filteredCards, id: \.objectID) { card in
                         CardRowView(
                             card: card,

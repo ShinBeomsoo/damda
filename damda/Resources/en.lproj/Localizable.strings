@@ -1,0 +1,100 @@
+/* 
+  Localizable.strings
+  damda
+  
+  Created by SHIN BEOMSOO on 8/8/25.
+*/
+
+// MARK: - App
+"app_name" = "DAMDA";
+"app_subtitle" = "Study Management App";
+
+// MARK: - Sidebar
+"sidebar_today" = "Today";
+"sidebar_statistics" = "Statistics";
+"sidebar_todos" = "Todos";
+"sidebar_flashcards" = "Flashcards";
+
+// MARK: - Today View
+"today_goals" = "Today's Goals";
+"today_study_time" = "Study Time";
+"today_todos" = "Todos";
+"today_goals_achieved" = "Today's Goals Achieved!";
+"today_streak" = "Current Streak";
+"today_max_streak" = "Max";
+"today_goals_achieved_message" = "You've achieved today's goals! Your streak has increased.";
+
+// MARK: - Timer
+"timer_study_time" = "Study Time";
+"timer_reset" = "Reset";
+"timer_start" = "Start";
+"timer_pause" = "Pause";
+"timer_morning" = "Morning";
+"timer_afternoon" = "Afternoon";
+"timer_evening" = "Evening";
+"timer_reset_alert" = "Do you want to reset all session times to 0?";
+"timer_running" = "Running";
+"timer_session_management" = "Session Study Time Management";
+"timer_usage" = "Usage";
+"timer_usage_start" = "• Press 'Start' button to begin timer for each session";
+"timer_usage_pause" = "• Press 'Pause' button to stop the timer";
+"timer_usage_auto_pause" = "• Starting another session automatically pauses the previous one";
+"timer_usage_reset" = "• Press 'Reset' button to initialize all session times to 0";
+"timer_usage_save" = "• Study time is automatically saved and persists when you restart the app";
+
+// MARK: - Flashcards
+"flashcards_management" = "Flashcard Management";
+"flashcards_today_review" = "Today's Review Cards";
+"flashcards_show_answer" = "Show Answer";
+"flashcards_dont_know" = "Don't Know";
+"flashcards_ambiguous" = "Ambiguous";
+"flashcards_know" = "Know";
+"flashcards_no_cards" = "No cards to review today!";
+"flashcards_no_cards_message" = "Add new cards or check back tomorrow.";
+"flashcards_search" = "Search cards...";
+"flashcards_question" = "Question (Front)";
+"flashcards_answer" = "Answer (Back)";
+"flashcards_add" = "Add";
+"flashcards_question_placeholder" = "Question";
+"flashcards_answer_placeholder" = "Answer";
+
+// MARK: - Todos
+"todos_management" = "Todo Management";
+"todos_add_new" = "Add New Todo";
+"todos_priority" = "Priority";
+"todos_input_placeholder" = "Enter your todo";
+"todos_today" = "Today's Todos";
+"todos_completed" = "Completed Todos";
+"todos_all_completed" = "All todos completed!";
+"todos_priority_todos" = "Priority Todos";
+
+// MARK: - Statistics
+"statistics_title" = "Study Statistics";
+"statistics" = "Statistics";
+"statistics_study_time_7days" = "Last 7 Days Study Time";
+"statistics_todos_7days" = "Last 7 Days Completed Todos";
+
+// MARK: - Calendar
+"calendar_year_month" = "%@ %@";
+"calendar_minutes" = "%@ min";
+
+// MARK: - Detail View
+"detail_record" = "%@ Record";
+"detail_study_time" = "Study Time";
+"detail_session_by" = "By Session";
+"detail_today_study_time" = "Today's Study Time";
+"detail_close" = "Close";
+
+// MARK: - Theme
+"theme_dark_mode" = "Dark Mode";
+"theme_light_mode" = "Light Mode";
+
+// MARK: - Time Format
+"time_format_hours_minutes" = "%@ hours %@ minutes";
+"time_format_hours" = "%@ hours";
+"time_format_minutes" = "%@ minutes";
+"time_format_days" = "%@ days";
+
+// MARK: - Units
+"unit_count" = "%@ items";
+"unit_days" = "%@ days"; 

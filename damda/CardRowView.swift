@@ -11,7 +11,7 @@ struct CardRowView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 8) {
                     if editingCardID == card.objectID {
                         TextField("질문", text: $editingQuestion, onCommit: {
                             cardManager.updateCard(card: card, newQuestion: editingQuestion, newAnswer: editingAnswer)
@@ -32,6 +32,7 @@ struct CardRowView: View {
                     } else {
                         Text(card.question ?? "")
                             .font(.body)
+                            .lineLimit(3)
                             .onTapGesture(count: 2) {
                                 editingCardID = card.objectID
                                 editingQuestion = card.question ?? ""
@@ -40,6 +41,7 @@ struct CardRowView: View {
                         Text(card.answer ?? "")
                             .font(.caption)
                             .foregroundColor(.gray)
+                            .lineLimit(2)
                             .onTapGesture(count: 2) {
                                 editingCardID = card.objectID
                                 editingQuestion = card.question ?? ""
@@ -61,7 +63,7 @@ struct CardRowView: View {
         .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.06), radius: 2, x: 0, y: 1)
-        .padding(.horizontal, 2)
+        .frame(maxWidth: .infinity)
         .frame(height: rowHeight)
     }
 }

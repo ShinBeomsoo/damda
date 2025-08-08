@@ -1,0 +1,100 @@
+/* 
+  Localizable.strings
+  damda
+  
+  Created by SHIN BEOMSOO on 8/8/25.
+*/
+
+// MARK: - App
+"app_name" = "DAMDA";
+"app_subtitle" = "학습 관리 앱";
+
+// MARK: - Sidebar
+"sidebar_today" = "오늘";
+"sidebar_statistics" = "통계";
+"sidebar_todos" = "할 일";
+"sidebar_flashcards" = "암기카드";
+
+// MARK: - Today View
+"today_goals" = "오늘의 목표";
+"today_study_time" = "공부 시간";
+"today_todos" = "할 일";
+"today_goals_achieved" = "오늘 목표 달성!";
+"today_streak" = "연속 달성";
+"today_max_streak" = "최대";
+"today_goals_achieved_message" = "오늘의 목표를 달성했습니다! 연속 달성이 증가했습니다.";
+
+// MARK: - Timer
+"timer_study_time" = "학습 시간";
+"timer_reset" = "리셋";
+"timer_start" = "시작";
+"timer_pause" = "일시정지";
+"timer_morning" = "아침";
+"timer_afternoon" = "오후";
+"timer_evening" = "저녁";
+"timer_reset_alert" = "모든 세션의 시간을 0으로 초기화하시겠습니까?";
+"timer_running" = "실행 중";
+"timer_session_management" = "세션별 학습 시간 관리";
+"timer_usage" = "사용법";
+"timer_usage_start" = "• 각 세션의 '시작' 버튼을 눌러 타이머를 시작합니다";
+"timer_usage_pause" = "• '일시정지' 버튼으로 타이머를 멈출 수 있습니다";
+"timer_usage_auto_pause" = "• 다른 세션을 시작하면 이전 세션은 자동으로 일시정지됩니다";
+"timer_usage_reset" = "• '리셋' 버튼으로 모든 세션의 시간을 초기화할 수 있습니다";
+"timer_usage_save" = "• 학습 시간은 자동으로 저장되어 앱을 다시 실행해도 유지됩니다";
+
+// MARK: - Flashcards
+"flashcards_management" = "암기 카드 관리";
+"flashcards_today_review" = "오늘 복습할 암기 카드";
+"flashcards_show_answer" = "답 보기";
+"flashcards_dont_know" = "모름";
+"flashcards_ambiguous" = "애매함";
+"flashcards_know" = "알고 있음";
+"flashcards_no_cards" = "오늘 복습할 카드가 없습니다!";
+"flashcards_no_cards_message" = "새로운 카드를 추가하거나 내일 다시 확인해보세요.";
+"flashcards_search" = "카드 검색...";
+"flashcards_question" = "질문(앞면)";
+"flashcards_answer" = "답변(뒷면)";
+"flashcards_add" = "추가";
+"flashcards_question_placeholder" = "질문";
+"flashcards_answer_placeholder" = "답변";
+
+// MARK: - Todos
+"todos_management" = "할 일 관리";
+"todos_add_new" = "새로운 할 일 추가";
+"todos_priority" = "우선순위";
+"todos_input_placeholder" = "할 일을 입력하세요";
+"todos_today" = "오늘의 할 일";
+"todos_completed" = "할 일 완료";
+"todos_all_completed" = "모든 할 일 완료!";
+"todos_priority_todos" = "우선순위 할 일";
+
+// MARK: - Statistics
+"statistics_title" = "학습 통계";
+"statistics" = "통계";
+"statistics_study_time_7days" = "최근 7일 집중 시간";
+"statistics_todos_7days" = "최근 7일 할 일 완료 개수";
+
+// MARK: - Calendar
+"calendar_year_month" = "%@년 %@월";
+"calendar_minutes" = "%@분";
+
+// MARK: - Detail View
+"detail_record" = "%@ 기록";
+"detail_study_time" = "학습 시간";
+"detail_session_by" = "세션별";
+"detail_today_study_time" = "오늘의 공부 시간";
+"detail_close" = "닫기";
+
+// MARK: - Theme
+"theme_dark_mode" = "다크모드";
+"theme_light_mode" = "라이트모드";
+
+// MARK: - Time Format
+"time_format_hours_minutes" = "%@시간 %@분";
+"time_format_hours" = "%@시간";
+"time_format_minutes" = "%@분";
+"time_format_days" = "%@일";
+
+// MARK: - Units
+"unit_count" = "%@개";
+"unit_days" = "%@일"; 
