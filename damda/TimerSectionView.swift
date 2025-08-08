@@ -39,12 +39,13 @@ struct TimerSectionView: View {
 struct TimerSessionCard: View {
     let session: TimerSession
     @ObservedObject var timerManager: TimerManagerObservable
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack {
             Text(sessionTitle(session))
                 .font(.system(size: 16, weight: .regular))
-                .foregroundColor(Color(hex: "565D6D"))
+                .foregroundColor(colorScheme == .dark ? .white : Color(hex: "565D6D"))
                 .lineSpacing(8)
             PulsingTimerView(
                 isActive: timerManager.currentSession == session && timerManager.isRunning,

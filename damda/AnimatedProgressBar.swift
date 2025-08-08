@@ -36,11 +36,12 @@ struct PulsingTimerView: View {
     let isActive: Bool
     let timeString: String
     @State private var isAnimating: Bool = false
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Text(timeString)
             .font(.system(size: 30, weight: .heavy))
-            .foregroundColor(Color(hex: "171A1F"))
+            .foregroundColor(colorScheme == .dark ? .white : Color(hex: "171A1F"))
             .lineSpacing(6)
             .scaleEffect(isAnimating ? 1.05 : 1.0)
             .animation(
