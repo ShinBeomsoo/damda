@@ -39,7 +39,6 @@ class TodoManagerObservable: ObservableObject {
 
     func toggleComplete(todo: Todo) {
         todo.isCompleted.toggle()
-        print("isCompleted:", todo.isCompleted)
         if todo.isCompleted {
             todo.completedAt = Date()
         } else {

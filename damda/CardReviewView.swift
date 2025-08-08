@@ -56,20 +56,20 @@ struct CardReviewView: View {
                         nextCard()
                     }
                         .fontWeight(.medium)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color.gray.opacity(0.12))
+                        .background(Color(hex: "FF6B6B"))
                         .cornerRadius(8)
                     Button("애매함") {
                         cardManager.review(card: currentCard, result: .medium)
                         nextCard()
                     }
                         .fontWeight(.medium)
-                        .foregroundColor(Color(hex: "E06552"))
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "FBEBE8"))
+                        .background(Color(hex: "FFA726"))
                         .cornerRadius(8)
                     Button("알고 있음") {
                         cardManager.review(card: currentCard, result: .success)
@@ -79,7 +79,7 @@ struct CardReviewView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "E06552"))
+                        .background(Color(hex: "66BB6A"))
                         .cornerRadius(8)
                 }
                 .padding(.top, 8)
