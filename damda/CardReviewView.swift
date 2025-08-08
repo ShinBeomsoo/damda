@@ -31,7 +31,9 @@ struct CardReviewView: View {
                             .padding(.vertical, 12)
                             .transition(.opacity)
                     } else {
-                        Button(action: { withAnimation { showAnswer = true } }) {
+                        Button(action: { 
+                            withAnimation { showAnswer = true } 
+                        }) {
                             Text("답 보기")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -51,36 +53,47 @@ struct CardReviewView: View {
                 .padding(.horizontal, 8)
 
                 HStack(spacing: 16) {
-                    Button("모름") {
+                    Button(action: {
                         cardManager.review(card: currentCard, result: .fail)
                         nextCard()
+                    }) {
+                        Text("모름")
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Color(hex: "FF6B6B"))
+                            .cornerRadius(8)
                     }
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color(hex: "FF6B6B"))
-                        .cornerRadius(8)
-                    Button("애매함") {
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: {
                         cardManager.review(card: currentCard, result: .medium)
                         nextCard()
+                    }) {
+                        Text("애매함")
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Color(hex: "FFA726"))
+                            .cornerRadius(8)
                     }
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color(hex: "FFA726"))
-                        .cornerRadius(8)
-                    Button("알고 있음") {
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: {
                         cardManager.review(card: currentCard, result: .success)
                         nextCard()
+                    }) {
+                        Text("알고 있음")
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Color(hex: "66BB6A"))
+                            .cornerRadius(8)
                     }
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color(hex: "66BB6A"))
-                        .cornerRadius(8)
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.top, 8)
                 

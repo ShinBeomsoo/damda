@@ -75,12 +75,14 @@ enum SidebarItem: String, CaseIterable {
     case today = "today"
     case statistics = "statistics"
     case todos = "todos"
+    case flashcards = "flashcards"
     
     var title: String {
         switch self {
         case .today: return "오늘"
         case .statistics: return "통계"
         case .todos: return "할 일"
+        case .flashcards: return "암기카드"
         }
     }
     
@@ -89,6 +91,7 @@ enum SidebarItem: String, CaseIterable {
         case .today: return "house.fill"
         case .statistics: return "chart.line.uptrend.xyaxis"
         case .todos: return "checklist"
+        case .flashcards: return "rectangle.on.rectangle"
         }
     }
 }
@@ -461,6 +464,8 @@ struct MainView: View {
                     )
                 case .todos:
                     TodosView(todoManager: todoManager)
+                case .flashcards:
+                    FlashcardsView(cardManager: cardManager)
                 }
             }
             .padding()
@@ -485,8 +490,6 @@ struct TodayView: View {
             TimerSectionView(timerManager: timerManager)
             
             CardReviewView(cardManager: cardManager)
-            
-            CardListView(cardManager: cardManager)
         }
     }
 }
@@ -530,6 +533,21 @@ struct StatisticsView: View {
         let h = seconds / 3600
         let m = (seconds % 3600) / 60
         return "\(h)시간 \(m)분"
+    }
+}
+
+struct FlashcardsView: View {
+    @ObservedObject var cardManager: CardManagerObservable
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("암기카드 관리")
+                .font(.title)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            CardListView(cardManager: cardManager)
+        }
     }
 }
 
