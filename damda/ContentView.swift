@@ -13,6 +13,7 @@ struct ContentView: View {
     @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var todoManager = TodoManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var streakManager = StreakManagerObservable(context: PersistenceController.shared.container.viewContext)
+    @State private var selectedDate: Date = Date()
     var body: some View {
         HStack(spacing: 0) {
             SidebarView()
@@ -26,8 +27,13 @@ struct ContentView: View {
             )
             .frame(minWidth: 600, maxWidth: .infinity)
             Divider()
-            DayDetailSidebarView()
-                .frame(width: 320)
+            DayDetailSidebarView(
+                selectedDate: $selectedDate,
+                todoManager: todoManager,
+                timerManager: timerManager,
+                streakManager: streakManager
+            )
+            .frame(width: 320)
         }
         .frame(minWidth: 1100, minHeight: 700)
     }
@@ -206,10 +212,82 @@ struct MainView: View {
 }
 
 struct DayDetailSidebarView: View {
+    @Binding var selectedDate: Date
+    @ObservedObject var todoManager: TodoManagerObservable
+    @ObservedObject var timerManager: TimerManagerObservable
+    @ObservedObject var streakManager: StreakManagerObservable
     var body: some View {
-        VStack {
-            Text("Detail Sidebar")
-            Spacer()
+        VStack(spacing: 16) {
+            CalendarView(
+                selectedDate: $selectedDate,
+                records: makeRecords()
+            )
+            .frame(maxWidth: .infinity)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("\(selectedDate, formatter: dateFormatter) 기록")
+                        .font(.headline)
+                    let todos = todoManager.todos.filter { todo in
+                        if let completedAt = todo.completedAt {
+                            return Calendar.current.isDate(completedAt, inSameDayAs: selectedDate)
+                        }
+                        return false
+                    }
+                    if !todos.isEmpty {
+                        Text("할 일 완료: \(todos.count)개")
+                        ForEach(todos, id: \.objectID) { todo in
+                            Text("- \(todo.text ?? "")")
+                                .font(.subheadline)
+                        }
+                    } else {
+                        Text("할 일 완료: 0개")
+                    }
+                    let seconds = timerManager.dailyTimeRecords(forDays: 30).first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })?.seconds ?? 0
+                    Text("학습 시간: \(seconds / 3600)시간 \((seconds % 3600) / 60)분")
+                    let streak = streakManager.currentStreak // 예시, 실제로는 날짜별 streak 기록 필요
+                    Text("연속 달성: \(streak)일")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(Color.gray.opacity(0.08))
+                .cornerRadius(12)
+            }
+            .frame(maxWidth: .infinity)
         }
+        .padding()
+    }
+    func makeRecords() -> [Date: (todos: Int, seconds: Int, streak: Bool)] {
+        var dict: [Date: (Int, Int, Bool)] = [:]
+        let calendar = Calendar.current
+        let goalSeconds = 6 * 60 * 60
+        let goalTodos = 5
+
+        // 할 일 완료 집계
+        for todo in todoManager.todos {
+            if todo.isCompleted, let completedAt = todo.completedAt {
+                let day = calendar.startOfDay(for: completedAt)
+                var entry = dict[day] ?? (0, 0, false)
+                entry.0 += 1
+                dict[day] = entry
+            }
+        }
+        // 타이머 집계
+        for rec in timerManager.dailyTimeRecords(forDays: 62) {
+            let day = calendar.startOfDay(for: rec.date)
+            var entry = dict[day] ?? (0, 0, false)
+            entry.1 = rec.seconds
+            dict[day] = entry
+        }
+        // streak 판단: 목표(시간/할 일) 모두 충족
+        for (day, tuple) in dict {
+            let met = (tuple.1 >= goalSeconds) && (tuple.0 >= goalTodos)
+            dict[day]?.2 = met
+        }
+        return dict
+    }
+    var dateFormatter: DateFormatter {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy년 M월 d일"
+        return df
     }
 }
