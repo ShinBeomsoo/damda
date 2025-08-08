@@ -16,13 +16,14 @@ struct ContentView: View {
     @State private var selectedDate: Date = Date()
     @State private var showGoalAchievement = false
     @State private var selectedSidebarItem: SidebarItem = .today
+    @AppStorage("isDarkMode") private var isDarkMode = false
     
     let goalSeconds = 6 * 60 * 60 // 6시간
     let goalTodos = 5
     
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView(selectedItem: $selectedSidebarItem)
+            SidebarView(selectedItem: $selectedSidebarItem, isDarkMode: $isDarkMode)
                 .frame(width: 200)
             Divider()
             MainView(
@@ -43,6 +44,7 @@ struct ContentView: View {
             .frame(width: 320)
         }
         .frame(minWidth: 1200, minHeight: 700)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .onChange(of: timerManager.totalSeconds) { _, _ in
             checkAndUpdateStreak()
         }
@@ -93,6 +95,7 @@ enum SidebarItem: String, CaseIterable {
 
 struct SidebarView: View {
     @Binding var selectedItem: SidebarItem
+    @Binding var isDarkMode: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -107,7 +110,39 @@ struct SidebarView: View {
                     .foregroundColor(.secondary)
             }
             .padding(.top, 20)
-            .padding(.bottom, 30)
+            .padding(.bottom, 20)
+            
+            // 다크모드 토글
+            HStack {
+                Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(isDarkMode ? .yellow : .orange)
+                Text(isDarkMode ? "다크모드" : "라이트모드")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.primary)
+                Spacer()
+                Button(action: {
+                    isDarkMode.toggle()
+                }) {
+                    Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(isDarkMode ? .yellow : .orange)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.05))
+            )
+            .padding(.horizontal, 12)
+            .padding(.bottom, 20)
             
             // 메뉴 아이템들
             VStack(spacing: 4) {
@@ -746,7 +781,7 @@ struct TodayStudySummaryView: View {
             }
         }
         .padding()
-        .background(Color.gray.opacity(0.08))
+        .background(Color(NSColor.controlColor))
         .cornerRadius(12)
     }
     
@@ -771,15 +806,15 @@ struct StudyTimeCard: View {
             
             Text(time)
                 .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
             
             Text(title)
                 .font(.system(size: 10))
-                .foregroundColor(.black)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
         .cornerRadius(8)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
@@ -798,11 +833,11 @@ struct SessionTimeCard: View {
             
             Text(time)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
         .cornerRadius(6)
         .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
     }
@@ -851,7 +886,7 @@ struct PriorityTodosView: View {
             }
         }
         .padding()
-        .background(Color.gray.opacity(0.08))
+        .background(Color(NSColor.controlColor))
         .cornerRadius(12)
     }
 }
@@ -903,7 +938,7 @@ struct PriorityTodoRow: View {
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
         .cornerRadius(6)
         .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
     }

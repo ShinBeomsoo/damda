@@ -9,7 +9,7 @@ struct CardReviewView: View {
         VStack(spacing: 20) {
             Text("오늘 복습할 암기 카드")
                 .font(.headline)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if !cardManager.todayReviewCards.isEmpty {
@@ -18,7 +18,7 @@ struct CardReviewView: View {
                 VStack(spacing: 16) {
                     Text(currentCard.question ?? "질문 없음")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 16)
                         .padding(.bottom, showAnswer ? 0 : 16)
@@ -26,7 +26,7 @@ struct CardReviewView: View {
                     if showAnswer {
                         Text(currentCard.answer ?? "답변 없음")
                             .font(.body)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .multilineTextAlignment(.center)
                             .padding(.vertical, 12)
                             .transition(.opacity)
@@ -45,7 +45,7 @@ struct CardReviewView: View {
                     }
                 }
                 .frame(minWidth: 340, maxWidth: 480)
-                .background(Color.white)
+                .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
                 .padding(.horizontal, 8)
@@ -88,7 +88,7 @@ struct CardReviewView: View {
                 HStack {
                     Text("\(currentIndex + 1) / \(cardManager.todayReviewCards.count)")
                         .font(.caption)
-                        .foregroundColor(.black)
+                        .foregroundColor(.secondary)
                     Spacer()
                 }
                 .padding(.top, 8)
@@ -99,21 +99,21 @@ struct CardReviewView: View {
                         .foregroundColor(.green)
                     Text("오늘 복습할 카드가 없습니다!")
                         .font(.headline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     Text("새로운 카드를 추가하거나 내일 다시 확인해보세요.")
                         .font(.subheadline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(minWidth: 340, maxWidth: 480)
-                .background(Color.white)
+                .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
                 .padding(.horizontal, 8)
             }
         }
         .padding(24)
-        .background(Color.gray.opacity(0.08))
+        .background(Color(NSColor.controlColor))
         .cornerRadius(16)
     }
     
