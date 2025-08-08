@@ -9,8 +9,6 @@ import SwiftUI
 
 struct TodoListView: View {
     @ObservedObject var todoManager: TodoManagerObservable
-    @State private var newTodoText: String = ""
-    @State private var newTodoPriority: Int = 5
     @State private var editingTodoID: NSManagedObjectID?
     @State private var editingText: String = ""
     @State private var editingPriority: Int = 5
@@ -28,24 +26,6 @@ struct TodoListView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("오늘의 할 일")
                 .font(.pretendard(18, weight: .semibold))
-            HStack {
-                TextField("오늘의 할 일을 입력하세요", text: $newTodoText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                Picker("우선순위", selection: $newTodoPriority) {
-                    ForEach(1...10, id: \ .self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .frame(width: 60)
-                Button("추가") {
-                    guard !newTodoText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    todoManager.addTodo(text: newTodoText, priority: Int16(newTodoPriority))
-                    newTodoText = ""
-                    newTodoPriority = 5
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding(.bottom, 8)
 
             ScrollView {
                 let todos: [Todo] = sortedTodos
