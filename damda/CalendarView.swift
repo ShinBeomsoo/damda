@@ -34,7 +34,7 @@ struct CalendarView: View {
                 }
                 Spacer()
                 Text("\(year, format: .number.grouping(.never))년 \(month, format: .number.grouping(.never))월")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.pretendard(16, weight: .semibold))
                     .foregroundColor(.black)
                 Spacer()
                 Button(action: {
@@ -54,7 +54,7 @@ struct CalendarView: View {
             HStack {
                 ForEach(weekDays, id: \.self) { wd in
                     Text(wd)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.pretendard(12, weight: .medium))
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity)
                 }
@@ -70,7 +70,7 @@ struct CalendarView: View {
                     let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
                     VStack(spacing: 3) {
                         Text("\(calendar.component(.day, from: date))")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.pretendard(14, weight: .bold))
                             .foregroundColor(isSelected ? .white : (isToday ? .orange : .black))
                             .frame(width: 32, height: 24)
                             .background(isSelected ? Color.orange : (isToday ? Color.orange.opacity(0.12) : Color.clear))
@@ -79,12 +79,12 @@ struct CalendarView: View {
                             HStack(spacing: 2) {
                                 if rec.todos > 0 {
                                     Text("\(rec.todos)")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pretendard(10, weight: .bold))
                                         .foregroundColor(.red)
                                 }
                                 if rec.seconds > 0 {
                                     Text("\(rec.seconds / 60)분")
-                                        .font(.system(size: 10))
+                                        .font(.pretendard(10))
                                         .foregroundColor(.blue)
                                 }
                                 if rec.streak {
