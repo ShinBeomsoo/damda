@@ -7,6 +7,7 @@ class TimerManagerObservable: ObservableObject {
     @Published var elapsedSeconds: [TimerSession: Int] = [
         .morning: 0, .afternoon: 0, .evening: 0
     ]
+    @Published var isRunning: Bool = false
 
     private let context: NSManagedObjectContext
     private let manager: TimerManager
@@ -35,6 +36,7 @@ class TimerManagerObservable: ObservableObject {
     func start(session: TimerSession) {
         manager.start(session: session)
         syncFromManager()
+        isRunning = true
         startTimerTick()
         saveCurrentSession()
     }
@@ -42,6 +44,7 @@ class TimerManagerObservable: ObservableObject {
     func pause() {
         manager.pause()
         syncFromManager()
+        isRunning = false
         stopTimerTick()
         saveCurrentSession()
     }
@@ -49,6 +52,7 @@ class TimerManagerObservable: ObservableObject {
     func reset() {
         manager.reset()
         syncFromManager()
+        isRunning = false
         stopTimerTick()
         clearSavedSession()
     }

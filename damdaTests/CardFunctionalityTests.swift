@@ -5,13 +5,13 @@
 //  Created by SHIN BEOMSOO on 8/8/25.
 //
 
-import Testing
+import XCTest
 import CoreData
 @testable import damda
 
-struct CardFunctionalityTests {
+final class CardFunctionalityTests: XCTestCase {
     
-    @Test func testAddCard() async throws {
+    func testAddCard() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -22,17 +22,17 @@ struct CardFunctionalityTests {
         cardManager.addCard(question: "테스트 질문", answer: "테스트 답변")
         
         // 카드가 추가되었는지 확인
-        #expect(cardManager.cards.count == initialCount + 1)
+        XCTAssertEqual(cardManager.cards.count, initialCount + 1)
         
         // 추가된 카드의 내용 확인
         let addedCard = cardManager.cards.last
-        #expect(addedCard?.question == "테스트 질문")
-        #expect(addedCard?.answer == "테스트 답변")
-        #expect(addedCard?.reviewInterval == 1)
-        #expect(addedCard?.reviewCount == 0)
+        XCTAssertEqual(addedCard?.question, "테스트 질문")
+        XCTAssertEqual(addedCard?.answer, "테스트 답변")
+        XCTAssertEqual(addedCard?.reviewInterval, 1)
+        XCTAssertEqual(addedCard?.reviewCount, 0)
     }
     
-    @Test func testDeleteCard() async throws {
+    func testDeleteCard() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -43,11 +43,11 @@ struct CardFunctionalityTests {
         // 마지막 카드 삭제
         if let lastCard = cardManager.cards.last {
             cardManager.deleteCard(card: lastCard)
-            #expect(cardManager.cards.count == initialCount - 1)
+            XCTAssertEqual(cardManager.cards.count, initialCount - 1)
         }
     }
     
-    @Test func testUpdateCard() async throws {
+    func testUpdateCard() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -59,12 +59,12 @@ struct CardFunctionalityTests {
             cardManager.updateCard(card: card, newQuestion: "수정된 질문", newAnswer: "수정된 답변")
             
             // 업데이트 확인
-            #expect(card.question == "수정된 질문")
-            #expect(card.answer == "수정된 답변")
+            XCTAssertEqual(card.question, "수정된 질문")
+            XCTAssertEqual(card.answer, "수정된 답변")
         }
     }
     
-    @Test func testReviewCard() async throws {
+    func testReviewCard() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -81,24 +81,24 @@ struct CardFunctionalityTests {
             cardManager.review(card: card, result: .success)
             
             // 복습 결과 확인
-            #expect(card.reviewCount == initialReviewCount + 1)
-            #expect(card.successCount == initialSuccessCount + 1)
-            #expect(card.failCount == initialFailCount)
-            #expect(card.reviewInterval == min(initialInterval * 2, 30))
-            #expect(card.lastReviewedAt != nil)
+            XCTAssertEqual(card.reviewCount, initialReviewCount + 1)
+            XCTAssertEqual(card.successCount, initialSuccessCount + 1)
+            XCTAssertEqual(card.failCount, initialFailCount)
+            XCTAssertEqual(card.reviewInterval, min(initialInterval * 2, 30))
+            XCTAssertNotNil(card.lastReviewedAt)
             
             // 실패로 복습
             cardManager.review(card: card, result: .fail)
             
             // 실패 결과 확인
-            #expect(card.reviewCount == initialReviewCount + 2)
-            #expect(card.successCount == initialSuccessCount + 1)
-            #expect(card.failCount == initialFailCount + 1)
-            #expect(card.reviewInterval == 1)
+            XCTAssertEqual(card.reviewCount, initialReviewCount + 2)
+            XCTAssertEqual(card.successCount, initialSuccessCount + 1)
+            XCTAssertEqual(card.failCount, initialFailCount + 1)
+            XCTAssertEqual(card.reviewInterval, 1)
         }
     }
     
-    @Test func testTodayReviewCards() async throws {
+    func testTodayReviewCards() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -107,16 +107,16 @@ struct CardFunctionalityTests {
         
         // 오늘 복습할 카드 목록 확인
         let todayCards = cardManager.todayReviewCards
-        #expect(todayCards.count > 0)
+        XCTAssertGreaterThan(todayCards.count, 0)
         
         // 새로 추가된 카드가 오늘 복습 목록에 포함되어 있는지 확인
         let hasNewCard = todayCards.contains { card in
             card.question == "오늘 복습할 카드"
         }
-        #expect(hasNewCard == true)
+        XCTAssertTrue(hasNewCard)
     }
     
-    @Test func testCardReviewWithDifferentResults() async throws {
+    func testCardReviewWithDifferentResults() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -128,15 +128,15 @@ struct CardFunctionalityTests {
             
             // 애매함으로 복습
             cardManager.review(card: card, result: .medium)
-            #expect(card.reviewInterval == max(initialInterval, 2))
+            XCTAssertEqual(card.reviewInterval, max(initialInterval, 2))
             
             // 성공으로 복습
             cardManager.review(card: card, result: .success)
-            #expect(card.reviewInterval == min(card.reviewInterval * 2, 30))
+            XCTAssertEqual(card.reviewInterval, min(card.reviewInterval * 2, 30))
             
             // 실패로 복습
             cardManager.review(card: card, result: .fail)
-            #expect(card.reviewInterval == 1)
+            XCTAssertEqual(card.reviewInterval, 1)
         }
     }
 } 

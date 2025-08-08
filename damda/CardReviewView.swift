@@ -22,6 +22,10 @@ struct CardReviewView: View {
                         .multilineTextAlignment(.center)
                         .padding(.top, 16)
                         .padding(.bottom, showAnswer ? 0 : 16)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
 
                     if showAnswer {
                         Text(currentCard.answer ?? "답변 없음")
@@ -29,21 +33,25 @@ struct CardReviewView: View {
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.center)
                             .padding(.vertical, 12)
-                            .transition(.opacity)
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .scale.combined(with: .opacity)
+                            ))
                     } else {
                         Button(action: { 
-                            withAnimation { showAnswer = true } 
+                            withAnimation(.easeInOut(duration: 0.3)) { showAnswer = true } 
                         }) {
-                                                    Text("답 보기")
-                            .font(.pretendard(14, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 10)
-                            .background(Color(hex: "E06552"))
-                            .cornerRadius(8)
+                            Text("답 보기")
+                                .font(.pretendard(14, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 10)
+                                .background(Color(hex: "E06552"))
+                                .cornerRadius(8)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding(.bottom, 8)
+                        .transition(.scale.combined(with: .opacity))
                     }
                 }
                 .frame(minWidth: 340, maxWidth: 480)
@@ -54,8 +62,10 @@ struct CardReviewView: View {
 
                 HStack(spacing: 16) {
                     Button(action: {
-                        cardManager.review(card: currentCard, result: .fail)
-                        nextCard()
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cardManager.review(card: currentCard, result: .fail)
+                            nextCard()
+                        }
                     }) {
                         Text("모름")
                             .font(.pretendard(14, weight: .medium))
@@ -66,10 +76,13 @@ struct CardReviewView: View {
                             .cornerRadius(8)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .slideTransition(isVisible: true, direction: .left)
                     
                     Button(action: {
-                        cardManager.review(card: currentCard, result: .medium)
-                        nextCard()
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cardManager.review(card: currentCard, result: .medium)
+                            nextCard()
+                        }
                     }) {
                         Text("애매함")
                             .font(.pretendard(14, weight: .medium))
@@ -80,10 +93,13 @@ struct CardReviewView: View {
                             .cornerRadius(8)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .slideTransition(isVisible: true, direction: .up)
                     
                     Button(action: {
-                        cardManager.review(card: currentCard, result: .success)
-                        nextCard()
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cardManager.review(card: currentCard, result: .success)
+                            nextCard()
+                        }
                     }) {
                         Text("알고 있음")
                             .font(.pretendard(14, weight: .medium))
@@ -94,6 +110,7 @@ struct CardReviewView: View {
                             .cornerRadius(8)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .slideTransition(isVisible: true, direction: .right)
                 }
                 .padding(.top, 8)
                 
@@ -107,9 +124,9 @@ struct CardReviewView: View {
                 .padding(.top, 8)
             } else {
                 VStack(spacing: 16) {
-                                                    Image(systemName: "checkmark.circle.fill")
-                                    .font(.pretendard(48))
-                                    .foregroundColor(.green)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.pretendard(48))
+                        .foregroundColor(.green)
                     Text("오늘 복습할 카드가 없습니다!")
                         .font(.headline)
                         .foregroundColor(.primary)
@@ -119,8 +136,6 @@ struct CardReviewView: View {
                         .multilineTextAlignment(.center)
                 }
                 .frame(minWidth: 340, maxWidth: 480)
-                .background(Color(NSColor.controlBackgroundColor))
-                .cornerRadius(16)
                 .padding(.horizontal, 8)
             }
         }

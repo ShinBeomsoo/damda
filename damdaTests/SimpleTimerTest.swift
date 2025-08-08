@@ -5,13 +5,13 @@
 //  Created by SHIN BEOMSOO on 8/8/25.
 //
 
-import Testing
+import XCTest
 import CoreData
 @testable import damda
 
-struct SimpleTimerTest {
+final class SimpleTimerTest: XCTestCase {
     
-    @Test func testTimerBasicFunctionality() async throws {
+    func testTimerBasicFunctionality() async throws {
         let context = PersistenceController.shared.container.viewContext
         let timerManager = TimerManagerObservable(context: context)
         
@@ -44,13 +44,13 @@ struct SimpleTimerTest {
         print("elapsedSeconds: \(timerManager.elapsedSeconds)")
         
         // 기본적인 검증
-        #expect(timerManager.currentSession == nil)
-        #expect(timerManager.elapsedSeconds[.morning] == 0)
-        #expect(timerManager.elapsedSeconds[.afternoon] == 0)
-        #expect(timerManager.elapsedSeconds[.evening] == 0)
+        XCTAssertNil(timerManager.currentSession)
+        XCTAssertEqual(timerManager.elapsedSeconds[.morning], 0)
+        XCTAssertEqual(timerManager.elapsedSeconds[.afternoon], 0)
+        XCTAssertEqual(timerManager.elapsedSeconds[.evening], 0)
     }
     
-    @Test func testCardBasicFunctionality() async throws {
+    func testCardBasicFunctionality() async throws {
         let context = PersistenceController.shared.container.viewContext
         let cardManager = CardManagerObservable(context: context)
         
@@ -77,6 +77,6 @@ struct SimpleTimerTest {
         }
         
         // 기본적인 검증
-        #expect(cardManager.cards.count > 0)
+        XCTAssertGreaterThan(cardManager.cards.count, 0)
     }
 } 
