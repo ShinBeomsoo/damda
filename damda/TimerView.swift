@@ -118,13 +118,7 @@ private struct SessionCardView: View {
             
             // 시작/일시정지 버튼
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isPressed = false
-                    onToggle()
-                }
+                onToggle()
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: isCurrent ? "pause.fill" : "play.fill")
@@ -137,18 +131,28 @@ private struct SessionCardView: View {
                 .padding(.vertical, 8)
                 .background(
                     LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(hex: "E06552"),
-                            Color(hex: "E06552").opacity(0.8)
-                        ]),
+                        colors: isCurrent ? 
+                            [Color(hex: "E06552"), Color(hex: "F4A261")] :
+                            [Color(hex: "E06552"), Color(hex: "E06552")],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .cornerRadius(8)
+                .shadow(
+                    color: isCurrent ? Color.black.opacity(0.2) : Color.black.opacity(0.1),
+                    radius: isCurrent ? 4 : 2,
+                    x: 0,
+                    y: isCurrent ? 2 : 1
+                )
                 .scaleEffect(isPressed ? 0.95 : 1.0)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PlainButtonStyle())
+            .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = pressing
+                }
+            }, perform: {})
         }
         .frame(minWidth: 180, maxWidth: .infinity)
         .padding()

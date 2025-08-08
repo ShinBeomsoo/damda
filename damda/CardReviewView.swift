@@ -9,6 +9,7 @@ struct CardReviewView: View {
         VStack(spacing: 20) {
             Text("오늘 복습할 암기 카드")
                 .font(.headline)
+                .foregroundColor(.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if !cardManager.todayReviewCards.isEmpty {
@@ -87,7 +88,7 @@ struct CardReviewView: View {
                 HStack {
                     Text("\(currentIndex + 1) / \(cardManager.todayReviewCards.count)")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.black)
                     Spacer()
                 }
                 .padding(.top, 8)
@@ -98,10 +99,10 @@ struct CardReviewView: View {
                         .foregroundColor(.green)
                     Text("오늘 복습할 카드가 없습니다!")
                         .font(.headline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.black)
                     Text("새로운 카드를 추가하거나 내일 다시 확인해보세요.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.black)
                         .multilineTextAlignment(.center)
                 }
                 .frame(minWidth: 340, maxWidth: 480)

@@ -15,20 +15,22 @@ struct ContentView: View {
     @StateObject private var streakManager = StreakManagerObservable(context: PersistenceController.shared.container.viewContext)
     @State private var selectedDate: Date = Date()
     @State private var showGoalAchievement = false
+    @State private var selectedSidebarItem: SidebarItem = .today
     
     let goalSeconds = 6 * 60 * 60 // 6시간
     let goalTodos = 5
     
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView()
-                .frame(width: 180)
+            SidebarView(selectedItem: $selectedSidebarItem)
+                .frame(width: 200)
             Divider()
             MainView(
                 cardManager: cardManager,
                 timerManager: timerManager,
                 todoManager: todoManager,
-                streakManager: streakManager
+                streakManager: streakManager,
+                selectedItem: selectedSidebarItem
             )
             .frame(minWidth: 600, maxWidth: .infinity)
             Divider()
@@ -40,7 +42,7 @@ struct ContentView: View {
             )
             .frame(width: 320)
         }
-        .frame(minWidth: 1100, minHeight: 700)
+        .frame(minWidth: 1200, minHeight: 700)
         .onChange(of: timerManager.totalSeconds) { _, _ in
             checkAndUpdateStreak()
         }
@@ -67,12 +69,93 @@ struct ContentView: View {
     }
 }
 
+enum SidebarItem: String, CaseIterable {
+    case today = "today"
+    case statistics = "statistics"
+    case todos = "todos"
+    
+    var title: String {
+        switch self {
+        case .today: return "오늘"
+        case .statistics: return "통계"
+        case .todos: return "할 일"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .today: return "house.fill"
+        case .statistics: return "chart.line.uptrend.xyaxis"
+        case .todos: return "checklist"
+        }
+    }
+}
+
 struct SidebarView: View {
+    @Binding var selectedItem: SidebarItem
+    
     var body: some View {
-        VStack {
-            Text("Sidebar")
+        VStack(spacing: 0) {
+            // 헤더
+            VStack(spacing: 8) {
+                Text("DAMDA")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(hex: "E06552"))
+                Text("학습 관리 앱")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.top, 20)
+            .padding(.bottom, 30)
+            
+            // 메뉴 아이템들
+            VStack(spacing: 4) {
+                ForEach(SidebarItem.allCases, id: \.self) { item in
+                    SidebarMenuItem(
+                        item: item,
+                        isSelected: selectedItem == item
+                    ) {
+                        selectedItem = item
+                    }
+                }
+            }
+            
             Spacer()
         }
+        .background(Color.gray.opacity(0.05))
+    }
+}
+
+struct SidebarMenuItem: View {
+    let item: SidebarItem
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: item.icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(isSelected ? .white : .primary)
+                    .frame(width: 20)
+                
+                Text(item.title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(isSelected ? .white : .primary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ? Color(hex: "E06552") : Color.clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 12)
     }
 }
 
@@ -323,50 +406,218 @@ struct MainView: View {
     @ObservedObject var timerManager: TimerManagerObservable
     @ObservedObject var todoManager: TodoManagerObservable
     @ObservedObject var streakManager: StreakManagerObservable
+    let selectedItem: SidebarItem
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                GoalSummaryView(
-                    timerManager: timerManager,
-                    todoManager: todoManager,
-                    streakManager: streakManager
-                )
-                TimerSectionView(timerManager: timerManager)
-                CardReviewView(cardManager: cardManager)
-                CardListView(cardManager: cardManager)
-                TodoListView(todoManager: todoManager)
-                StatsChartView(
-                    timeRecords: timerManager.dailyTimeRecords(forDays: 7),
-                    todoRecords: todoManager.dailyCompletedTodos(forDays: 7)
-                )
+                switch selectedItem {
+                case .today:
+                    TodayView(
+                        cardManager: cardManager,
+                        timerManager: timerManager,
+                        todoManager: todoManager,
+                        streakManager: streakManager
+                    )
+                case .statistics:
+                    StatisticsView(
+                        timerManager: timerManager,
+                        todoManager: todoManager
+                    )
+                case .todos:
+                    TodosView(todoManager: todoManager)
+                }
             }
             .padding()
         }
     }
 }
 
+struct TodayView: View {
+    @ObservedObject var cardManager: CardManagerObservable
+    @ObservedObject var timerManager: TimerManagerObservable
+    @ObservedObject var todoManager: TodoManagerObservable
+    @ObservedObject var streakManager: StreakManagerObservable
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            GoalSummaryView(
+                timerManager: timerManager,
+                todoManager: todoManager,
+                streakManager: streakManager
+            )
+            
+            TimerSectionView(timerManager: timerManager)
+            
+            CardReviewView(cardManager: cardManager)
+            
+            CardListView(cardManager: cardManager)
+        }
+    }
+}
+
+struct StatisticsView: View {
+    @ObservedObject var timerManager: TimerManagerObservable
+    @ObservedObject var todoManager: TodoManagerObservable
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("학습 통계")
+                .font(.title)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            StatsChartView(
+                timeRecords: timerManager.dailyTimeRecords(forDays: 7),
+                todoRecords: todoManager.dailyCompletedTodos(forDays: 7)
+            )
+            
+            // 추가 통계 정보들
+            HStack(spacing: 24) {
+                StatCard(
+                    title: "총 학습 시간",
+                    value: formatTime(timerManager.totalSeconds),
+                    icon: "clock.fill",
+                    color: .blue
+                )
+                
+                StatCard(
+                    title: "완료된 할 일",
+                    value: "\(todoManager.completedCount)개",
+                    icon: "checkmark.circle.fill",
+                    color: .green
+                )
+            }
+        }
+    }
+    
+    private func formatTime(_ seconds: Int) -> String {
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        return "\(h)시간 \(m)분"
+    }
+}
+
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(color)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(12)
+    }
+}
+
+struct TodosView: View {
+    @ObservedObject var todoManager: TodoManagerObservable
+    @State private var newTodoText: String = ""
+    @State private var newTodoPriority: Int16 = 5
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("할 일 관리")
+                .font(.title)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // 할 일 입력
+            VStack(spacing: 12) {
+                Text("새로운 할 일 추가")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                HStack(spacing: 12) {
+                    TextField("할 일을 입력하세요", text: $newTodoText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    Picker("우선순위", selection: $newTodoPriority) {
+                        ForEach(1...10, id: \.self) { priority in
+                            Text("\(priority)").tag(Int16(priority))
+                        }
+                    }
+                    .frame(width: 80)
+                    
+                    Button(action: {
+                        if !newTodoText.isEmpty {
+                            todoManager.addTodo(text: newTodoText, priority: newTodoPriority)
+                            newTodoText = ""
+                            newTodoPriority = 5
+                        }
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(Color(hex: "E06552"))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding()
+            .background(Color.gray.opacity(0.08))
+            .cornerRadius(12)
+            
+            // 할 일 목록
+            TodoListView(todoManager: todoManager)
+        }
+    }
+}
+
+
+
 struct DayDetailSidebarView: View {
     @Binding var selectedDate: Date
     @ObservedObject var todoManager: TodoManagerObservable
     @ObservedObject var timerManager: TimerManagerObservable
     @ObservedObject var streakManager: StreakManagerObservable
+    
     var body: some View {
         VStack(spacing: 16) {
+            // 오늘의 공부 시간 요약
+            if Calendar.current.isDateInToday(selectedDate) {
+                TodayStudySummaryView(timerManager: timerManager)
+            }
+            
+            // 우선순위 높은 할 일 3개
+            if Calendar.current.isDateInToday(selectedDate) {
+                PriorityTodosView(todoManager: todoManager)
+            }
+            
+            // 캘린더
             CalendarView(
                 selectedDate: $selectedDate,
                 records: makeRecords()
             )
             .frame(maxWidth: .infinity)
+            
+            // 선택된 날짜의 상세 기록
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("\(selectedDate, formatter: dateFormatter) 기록")
                         .font(.headline)
+                    
                     let todos = todoManager.todos.filter { todo in
                         if let completedAt = todo.completedAt {
                             return Calendar.current.isDate(completedAt, inSameDayAs: selectedDate)
                         }
                         return false
                     }
+                    
                     if !todos.isEmpty {
                         Text("할 일 완료: \(todos.count)개")
                         ForEach(todos, id: \.objectID) { todo in
@@ -376,9 +627,11 @@ struct DayDetailSidebarView: View {
                     } else {
                         Text("할 일 완료: 0개")
                     }
+                    
                     let seconds = timerManager.dailyTimeRecords(forDays: 30).first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })?.seconds ?? 0
                     Text("학습 시간: \(seconds / 3600)시간 \((seconds % 3600) / 60)분")
-                    let streak = streakManager.currentStreak // 예시, 실제로는 날짜별 streak 기록 필요
+                    
+                    let streak = streakManager.currentStreak
                     Text("연속 달성: \(streak)일")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -390,6 +643,7 @@ struct DayDetailSidebarView: View {
         }
         .padding()
     }
+    
     func makeRecords() -> [Date: (todos: Int, seconds: Int, streak: Bool)] {
         let calendar = Calendar.current
         let goalSeconds = 6 * 60 * 60 // 6시간
@@ -425,9 +679,241 @@ struct DayDetailSidebarView: View {
         
         return result
     }
+    
     var dateFormatter: DateFormatter {
         let df = DateFormatter()
         df.dateFormat = "yyyy년 M월 d일"
         return df
+    }
+}
+
+struct TodayStudySummaryView: View {
+    @ObservedObject var timerManager: TimerManagerObservable
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Image(systemName: "clock.fill")
+                    .foregroundColor(Color(hex: "E06552"))
+                Text("오늘의 공부 시간")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+            }
+            
+            HStack(spacing: 16) {
+                StudyTimeCard(
+                    title: "총 시간",
+                    time: formatTime(timerManager.totalSeconds),
+                    icon: "clock.fill",
+                    color: .blue
+                )
+                
+                StudyTimeCard(
+                    title: "목표 달성",
+                    time: "\(Int(Double(timerManager.totalSeconds) / Double(6 * 60 * 60) * 100))%",
+                    icon: "target",
+                    color: timerManager.totalSeconds >= 6 * 60 * 60 ? .green : .orange
+                )
+            }
+            
+            // 세션별 시간
+            VStack(spacing: 8) {
+                HStack {
+                    Text("세션별")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Spacer()
+                }
+                
+                HStack(spacing: 12) {
+                    SessionTimeCard(
+                        title: "아침",
+                        time: formatTime(timerManager.elapsedSeconds[.morning] ?? 0),
+                        color: .orange
+                    )
+                    SessionTimeCard(
+                        title: "오후",
+                        time: formatTime(timerManager.elapsedSeconds[.afternoon] ?? 0),
+                        color: .blue
+                    )
+                    SessionTimeCard(
+                        title: "저녁",
+                        time: formatTime(timerManager.elapsedSeconds[.evening] ?? 0),
+                        color: .purple
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.08))
+        .cornerRadius(12)
+    }
+    
+    private func formatTime(_ seconds: Int) -> String {
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        return "\(h)시간 \(m)분"
+    }
+}
+
+struct StudyTimeCard: View {
+    let title: String
+    let time: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundColor(color)
+            
+            Text(time)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.black)
+            
+            Text(title)
+                .font(.system(size: 10))
+                .foregroundColor(.black)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.white)
+        .cornerRadius(8)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+    }
+}
+
+struct SessionTimeCard: View {
+    let title: String
+    let time: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(color)
+            
+            Text(time)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.black)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .background(Color.white)
+        .cornerRadius(6)
+        .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
+    }
+}
+
+struct PriorityTodosView: View {
+    @ObservedObject var todoManager: TodoManagerObservable
+    
+    var priorityTodos: [Todo] {
+        let uncompletedTodos = todoManager.todos.filter { !$0.isCompleted }
+        return Array(uncompletedTodos.sorted { $0.priority > $1.priority }.prefix(3))
+    }
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Image(systemName: "flag.fill")
+                    .foregroundColor(.orange)
+                Text("우선순위 할 일")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+            }
+            
+            if priorityTodos.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.green)
+                    Text("모든 할 일 완료!")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(Array(priorityTodos.enumerated()), id: \.element.objectID) { index, todo in
+                        PriorityTodoRow(
+                            todo: todo,
+                            rank: index + 1,
+                            todoManager: todoManager
+                        )
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.08))
+        .cornerRadius(12)
+    }
+}
+
+struct PriorityTodoRow: View {
+    let todo: Todo
+    let rank: Int
+    @ObservedObject var todoManager: TodoManagerObservable
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            // 순위 표시
+            Text("\(rank)")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 16, height: 16)
+                .background(
+                    Circle()
+                        .fill(rankColor)
+                )
+            
+            // 우선순위 표시
+            HStack(spacing: 2) {
+                Image(systemName: "flag.fill")
+                    .font(.system(size: 8))
+                    .foregroundColor(.orange)
+                Text("\(todo.priority)")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.orange)
+            }
+            
+            // 할 일 텍스트
+            Text(todo.text ?? "")
+                .font(.system(size: 12))
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+            
+            Spacer()
+            
+            // 완료 버튼
+            Button(action: {
+                todoManager.toggleComplete(todo: todo)
+            }) {
+                Image(systemName: "checkmark.circle")
+                    .font(.system(size: 14))
+                    .foregroundColor(.green)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
+        .background(Color.white)
+        .cornerRadius(6)
+        .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 1)
+    }
+    
+    private var rankColor: Color {
+        switch rank {
+        case 1: return .red
+        case 2: return .orange
+        case 3: return .yellow
+        default: return .gray
+        }
     }
 }

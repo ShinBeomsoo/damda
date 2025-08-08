@@ -56,7 +56,13 @@ class TimerManagerObservable: ObservableObject {
     // MARK: - Session Persistence
     private func saveCurrentSession() {
         UserDefaults.standard.set(currentSession?.rawValue, forKey: "currentSession")
-        UserDefaults.standard.set(elapsedSeconds, forKey: "elapsedSeconds")
+        
+        // elapsedSeconds를 String 키로 변환하여 저장
+        var savedElapsedSeconds: [String: Int] = [:]
+        for (session, seconds) in elapsedSeconds {
+            savedElapsedSeconds[session.rawValue] = seconds
+        }
+        UserDefaults.standard.set(savedElapsedSeconds, forKey: "elapsedSeconds")
     }
     
     private func restoreSessionIfNeeded() {
