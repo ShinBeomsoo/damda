@@ -75,6 +75,24 @@ class TodoManagerObservable: ObservableObject {
         return result
     }
 
+    func completedCountByDateRange(start: Date, end: Date) -> [Date: Int] {
+        let fetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "isCompleted == YES"),
+            NSPredicate(format: "completedAt >= %@ AND completedAt < %@", start as NSDate, end as NSDate)
+        ])
+        guard let items = try? context.fetch(fetch) else { return [:] }
+        let calendar = Calendar.current
+        var result: [Date: Int] = [:]
+        for t in items {
+            if let completedAt = t.completedAt {
+                let day = calendar.startOfDay(for: completedAt)
+                result[day, default: 0] += 1
+            }
+        }
+        return result
+    }
+
     var completedCount: Int {
         todos.filter { $0.isCompleted }.count
     }

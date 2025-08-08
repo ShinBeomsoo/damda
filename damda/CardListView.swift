@@ -4,14 +4,42 @@ struct CardListView: View {
     @ObservedObject var cardManager: CardManagerObservable
     @State private var question: String = ""
     @State private var answer: String = ""
+    @State private var searchText: String = ""
+    @State private var editingCardID: NSManagedObjectID? = nil
+    @State private var editingQuestion: String = ""
+    @State private var editingAnswer: String = ""
 
     let rowHeight: CGFloat = 80
     let visibleRows: CGFloat = 5
+
+    var filteredCards: [Card] {
+        if searchText.isEmpty {
+            return cardManager.cards
+        } else {
+            return cardManager.cards.filter { card in
+                let question = card.question ?? ""
+                let answer = card.answer ?? ""
+                return question.localizedCaseInsensitiveContains(searchText) ||
+                       answer.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("암기 카드 관리")
                 .font(.headline)
+            
+            // 검색 바
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                TextField("카드 검색...", text: $searchText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
+            .padding(.bottom, 8)
+            
+            // 카드 추가
             HStack {
                 TextField("질문(앞면)", text: $question)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -29,31 +57,15 @@ struct CardListView: View {
 
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    ForEach(cardManager.cards, id: \ .objectID) { card in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(card.question ?? "")
-                                .font(.body).bold()
-                                .foregroundColor(.black)
-                            Text(card.answer ?? "")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    cardManager.deleteCard(card: card)
-                                }) {
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.gray)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(12)
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(color: Color.black.opacity(0.06), radius: 2, x: 0, y: 1)
-                        .padding(.horizontal, 2)
-                        .frame(height: rowHeight)
+                    ForEach(filteredCards, id: \.objectID) { card in
+                        CardRowView(
+                            card: card,
+                            rowHeight: rowHeight,
+                            editingCardID: $editingCardID,
+                            editingQuestion: $editingQuestion,
+                            editingAnswer: $editingAnswer,
+                            cardManager: cardManager
+                        )
                     }
                 }
             }

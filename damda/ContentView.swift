@@ -14,6 +14,11 @@ struct ContentView: View {
     @StateObject private var todoManager = TodoManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var streakManager = StreakManagerObservable(context: PersistenceController.shared.container.viewContext)
     @State private var selectedDate: Date = Date()
+    @State private var showGoalAchievement = false
+    
+    let goalSeconds = 6 * 60 * 60 // 6시간
+    let goalTodos = 5
+    
     var body: some View {
         HStack(spacing: 0) {
             SidebarView()
@@ -36,6 +41,29 @@ struct ContentView: View {
             .frame(width: 320)
         }
         .frame(minWidth: 1100, minHeight: 700)
+        .onChange(of: timerManager.totalSeconds) { _, _ in
+            checkAndUpdateStreak()
+        }
+        .onChange(of: todoManager.completedCount) { _, _ in
+            checkAndUpdateStreak()
+        }
+        .alert("🎉 목표 달성!", isPresented: $showGoalAchievement) {
+            Button("확인") { }
+        } message: {
+            Text("오늘의 목표를 달성했습니다! 연속 달성이 증가했습니다.")
+        }
+    }
+    
+    private func checkAndUpdateStreak() {
+        let wasGoalMet = streakManager.currentStreak > 0
+        let isGoalMet = (timerManager.totalSeconds >= goalSeconds) && (todoManager.completedCount >= goalTodos)
+        
+        streakManager.markToday(success: isGoalMet)
+        
+        // 목표 달성 시 축하 메시지 표시
+        if isGoalMet && !wasGoalMet {
+            showGoalAchievement = true
+        }
     }
 }
 
@@ -55,41 +83,147 @@ struct GoalSummaryView: View {
 
     let goalSeconds = 6 * 60 * 60 // 6시간
     let goalTodos = 5
+    
+    @State private var animateProgress = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("오늘의 목표")
                 .font(.title2).bold()
+            
             // 공부 시간 목표 ProgressBar
-            HStack {
-                Text("공부 시간: \(formatTime(timerManager.totalSeconds)) / 06:00:00")
-                Spacer()
-                Text("\(Int(Double(timerManager.totalSeconds) / Double(goalSeconds) * 100))%")
+            VStack(spacing: 4) {
+                HStack {
+                    Text("공부 시간: \(formatTime(timerManager.totalSeconds)) / 06:00:00")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("\(Int(Double(timerManager.totalSeconds) / Double(goalSeconds) * 100))%")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(timerManager.totalSeconds >= goalSeconds ? .green : .primary)
+                }
+                CustomProgressBar(
+                    value: min(Double(timerManager.totalSeconds) / Double(goalSeconds), 1.0),
+                    isCompleted: timerManager.totalSeconds >= goalSeconds
+                )
             }
-            ProgressView(value: min(Double(timerManager.totalSeconds) / Double(goalSeconds), 1.0))
-                .progressViewStyle(LinearProgressViewStyle())
+            
             // 할 일 목표 ProgressBar
-            HStack {
-                Text("할 일: \(todoManager.completedCount) / \(goalTodos)")
-                Spacer()
-                Text("\(Int(Double(todoManager.completedCount) / Double(goalTodos) * 100))%")
+            VStack(spacing: 4) {
+                HStack {
+                    Text("할 일: \(todoManager.completedCount) / \(goalTodos)")
+                        .font(.subheadline)
+                    Spacer()
+                    Text("\(Int(Double(todoManager.completedCount) / Double(goalTodos) * 100))%")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(todoManager.completedCount >= goalTodos ? .green : .primary)
+                }
+                CustomProgressBar(
+                    value: min(Double(todoManager.completedCount) / Double(goalTodos), 1.0),
+                    isCompleted: todoManager.completedCount >= goalTodos
+                )
             }
-            ProgressView(value: min(Double(todoManager.completedCount) / Double(goalTodos), 1.0))
-                .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: "E06552")))
+            
+            // 목표 달성 상태 표시
+            if timerManager.totalSeconds >= goalSeconds && todoManager.completedCount >= goalTodos {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text("오늘 목표 달성!")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.green)
+                    Spacer()
+                }
+                .padding(.top, 4)
+            }
+            
             // 연속 달성(streak) 표시
-            Text("연속 달성: \(streakManager.currentStreak)일 (최대: \(streakManager.maxStreak)일)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+            HStack {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.orange)
+                Text("연속 달성: \(streakManager.currentStreak)일")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                Spacer()
+                Text("최대: \(streakManager.maxStreak)일")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.top, 4)
         }
         .padding()
         .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.8)) {
+                animateProgress = true
+            }
+        }
     }
+    
     func formatTime(_ seconds: Int) -> String {
         let h = seconds / 3600
         let m = (seconds % 3600) / 60
         let s = seconds % 60
         return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+}
+
+struct CustomProgressBar: View {
+    let value: Double
+    let isCompleted: Bool
+    
+    @State private var animatedValue: Double = 0
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                // 배경
+                Rectangle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 8)
+                    .cornerRadius(4)
+                
+                // 진행 바
+                Rectangle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                isCompleted ? Color.green : Color(hex: "E06552"),
+                                isCompleted ? Color.green.opacity(0.8) : Color(hex: "E06552").opacity(0.8)
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: geometry.size.width * animatedValue, height: 8)
+                    .cornerRadius(4)
+                    .animation(.easeInOut(duration: 0.6), value: animatedValue)
+                
+                // 완료 시 반짝이는 효과
+                if isCompleted {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(width: 20, height: 8)
+                        .cornerRadius(4)
+                        .offset(x: geometry.size.width * animatedValue - 20)
+                        .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: animatedValue)
+                }
+            }
+        }
+        .frame(height: 8)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.8)) {
+                animatedValue = value
+            }
+        }
+        .onChange(of: value) { newValue in
+            withAnimation(.easeInOut(duration: 0.6)) {
+                animatedValue = newValue
+            }
+        }
     }
 }
 
@@ -257,33 +391,39 @@ struct DayDetailSidebarView: View {
         .padding()
     }
     func makeRecords() -> [Date: (todos: Int, seconds: Int, streak: Bool)] {
-        var dict: [Date: (Int, Int, Bool)] = [:]
         let calendar = Calendar.current
-        let goalSeconds = 6 * 60 * 60
+        let goalSeconds = 6 * 60 * 60 // 6시간
         let goalTodos = 5
 
-        // 할 일 완료 집계
-        for todo in todoManager.todos {
-            if todo.isCompleted, let completedAt = todo.completedAt {
-                let day = calendar.startOfDay(for: completedAt)
-                var entry = dict[day] ?? (0, 0, false)
-                entry.0 += 1
-                dict[day] = entry
-            }
+        // 범위: 현재 선택 월 기준 한 달
+        let year = calendar.component(.year, from: selectedDate)
+        let month = calendar.component(.month, from: selectedDate)
+        let comps = DateComponents(year: year, month: month, day: 1)
+        let start = calendar.date(from: comps) ?? calendar.startOfDay(for: Date())
+        let end = calendar.date(byAdding: .month, value: 1, to: start) ?? start
+
+        // CoreData에서 직접 집계
+        let secondsByDay = timerManager.dailySecondsByDateRange(start: start, end: end)
+        let todosByDay = todoManager.completedCountByDateRange(start: start, end: end)
+        let streakByDay = streakManager.dailyStreakStatus(start: start, end: end)
+
+        // 병합하여 결과 생성
+        var result: [Date: (todos: Int, seconds: Int, streak: Bool)] = [:]
+        
+        // 해당 월의 모든 날짜에 대해 데이터 생성
+        let range = calendar.range(of: .day, in: .month, for: start) ?? (1..<32)
+        for dayOffset in 0..<range.count {
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: start) else { continue }
+            let startOfDay = calendar.startOfDay(for: date)
+            
+            let seconds = secondsByDay[startOfDay] ?? 0
+            let todos = todosByDay[startOfDay] ?? 0
+            let isStreakDay = streakByDay[startOfDay] ?? false
+            
+            result[startOfDay] = (todos: todos, seconds: seconds, streak: isStreakDay)
         }
-        // 타이머 집계
-        for rec in timerManager.dailyTimeRecords(forDays: 62) {
-            let day = calendar.startOfDay(for: rec.date)
-            var entry = dict[day] ?? (0, 0, false)
-            entry.1 = rec.seconds
-            dict[day] = entry
-        }
-        // streak 판단: 목표(시간/할 일) 모두 충족
-        for (day, tuple) in dict {
-            let met = (tuple.1 >= goalSeconds) && (tuple.0 >= goalTodos)
-            dict[day]?.2 = met
-        }
-        return dict
+        
+        return result
     }
     var dateFormatter: DateFormatter {
         let df = DateFormatter()
