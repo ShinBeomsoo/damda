@@ -59,6 +59,15 @@ struct CardRowView: View {
                 .buttonStyle(.plain)
             }
             .padding(12)
+            HStack(spacing: 6) {
+                Image(systemName: "calendar")
+                    .foregroundColor(.secondary)
+                Text("다음 복습: \(cardManager.naturalDueLabel(for: card))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            .padding([.horizontal, .bottom], 12)
         }
         .background(Color.gray.opacity(0.12))
         .cornerRadius(12)

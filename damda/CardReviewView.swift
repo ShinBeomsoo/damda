@@ -61,13 +61,18 @@ struct CardReviewView: View {
                 .padding(.horizontal, 8)
 
                 HStack(spacing: 16) {
+                    let preview = cardManager.previewInfos(for: currentCard)
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             cardManager.review(card: currentCard, result: .fail)
                             nextCard()
                         }
                     }) {
-                        Text("모름")
+                        HStack(spacing: 6) {
+                            Text("모름 · \(preview.fail.label)")
+                            Image(systemName: "info.circle")
+                                .help(preview.fail.tooltip)
+                        }
                             .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -84,7 +89,11 @@ struct CardReviewView: View {
                             nextCard()
                         }
                     }) {
-                        Text("애매함")
+                        HStack(spacing: 6) {
+                            Text("애매함 · \(preview.medium.label)")
+                            Image(systemName: "info.circle")
+                                .help(preview.medium.tooltip)
+                        }
                             .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -101,7 +110,11 @@ struct CardReviewView: View {
                             nextCard()
                         }
                     }) {
-                        Text("알고 있음")
+                        HStack(spacing: 6) {
+                            Text("알고 있음 · \(preview.success.label)")
+                            Image(systemName: "info.circle")
+                                .help(preview.success.tooltip)
+                        }
                             .font(.pretendard(14, weight: .medium))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
