@@ -98,6 +98,11 @@ class CardManagerObservable: ObservableObject {
                 break
             }
             card.reviewInterval = Int64(next.intervalDays)
+
+            // Compute and persist next dueDate if attribute exists
+            if let nextDue = computeDueDate(base: card.lastReviewedAt ?? Date(), days: next.intervalDays) {
+                persistDueDateIfSupported(card: card, due: nextDue)
+            }
         } else {
             // 기존 단순 규칙
             switch result {
@@ -109,6 +114,11 @@ class CardManagerObservable: ObservableObject {
                 card.reviewInterval = 1
             case .medium:
                 card.reviewInterval = max(card.reviewInterval, 2)
+            }
+
+            // Compute and persist next dueDate if attribute exists
+            if let nextDue = computeDueDate(base: card.lastReviewedAt ?? Date(), days: Int(card.reviewInterval)) {
+                persistDueDateIfSupported(card: card, due: nextDue)
             }
         }
 
@@ -140,8 +150,24 @@ class CardManagerObservable: ObservableObject {
 
     // MARK: - Natural language helpers / Due date
     func dueDate(for card: Card) -> Date? {
+        // Prefer persisted dueDate attribute if available
+        if card.entity.attributesByName["dueDate"] != nil {
+            if let persisted = card.value(forKey: "dueDate") as? Date {
+                return persisted
+            }
+        }
+        // Fallback: compute from lastReviewedAt + reviewInterval
         guard let last = card.lastReviewedAt else { return nil }
         return Calendar.current.date(byAdding: .day, value: Int(card.reviewInterval), to: last)
+    }
+
+    private func computeDueDate(base: Date, days: Int) -> Date? {
+        Calendar.current.date(byAdding: .day, value: max(0, days), to: Calendar.current.startOfDay(for: base))
+    }
+
+    private func persistDueDateIfSupported(card: Card, due: Date) {
+        guard card.entity.attributesByName["dueDate"] != nil else { return }
+        card.setValue(due, forKey: "dueDate")
     }
 
     /// 오늘/내일/N일 뒤 포맷으로 변환
@@ -165,6 +191,18 @@ class CardManagerObservable: ObservableObject {
         return naturalDaysString(days: days)
     }
 
+    func formattedDateLabel(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M/d(E)"
+        return formatter.string(from: date)
+    }
+
+    func approxRelativeString(days: Int) -> String {
+        if days <= 0 { return "오늘" }
+        return "약 \(days)일 뒤"
+    }
+
     struct PreviewInfo {
         let days: Int
         let label: String   // 자연어 라벨(오늘/내일/N일 뒤)
@@ -176,13 +214,17 @@ class CardManagerObservable: ObservableObject {
         let current = Int(card.reviewInterval)
         let state = loadSM2State(for: card)
         let (fail, med, succ) = previewIntervals(for: card)
-        let failLabel = naturalDaysString(days: fail)
-        let medLabel = naturalDaysString(days: med)
-        let succLabel = naturalDaysString(days: succ)
+        let base = card.lastReviewedAt ?? Date()
+        let failDate = computeDueDate(base: base, days: fail) ?? Date()
+        let medDate  = computeDueDate(base: base, days: med) ?? Date()
+        let succDate = computeDueDate(base: base, days: succ) ?? Date()
+        let failLabel = naturalDaysString(days: fail) + " (" + formattedDateLabel(date: failDate) + ")"
+        let medLabel  = naturalDaysString(days: med)  + " (" + formattedDateLabel(date: medDate)  + ")"
+        let succLabel = naturalDaysString(days: succ) + " (" + formattedDateLabel(date: succDate) + ")"
         let baseTip = "SM-2 기준 · 현재 EF: \(String(format: "%.2f", state.easeFactor)) · 반복: \(state.repetitionCount) · 현 간격: \(current)일"
-        let failTip = baseTip + "\n결과: 모름 → 다음 간격 \(fail)일"
-        let medTip  = baseTip + "\n결과: 애매함 → 다음 간격 \(med)일"
-        let succTip = baseTip + "\n결과: 알고 있음 → 다음 간격 \(succ)일"
+        let failTip = baseTip + "\n결과: 모름 → 다음 간격 \(fail)일 (" + formattedDateLabel(date: failDate) + ") · " + approxRelativeString(days: fail)
+        let medTip  = baseTip + "\n결과: 애매함 → 다음 간격 \(med)일 (" + formattedDateLabel(date: medDate) + ") · " + approxRelativeString(days: med)
+        let succTip = baseTip + "\n결과: 알고 있음 → 다음 간격 \(succ)일 (" + formattedDateLabel(date: succDate) + ") · " + approxRelativeString(days: succ)
         return (
             PreviewInfo(days: fail, label: failLabel, tooltip: failTip),
             PreviewInfo(days: med,  label: medLabel,  tooltip: medTip),

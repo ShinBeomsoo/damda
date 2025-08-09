@@ -62,7 +62,10 @@ struct CardRowView: View {
             HStack(spacing: 6) {
                 Image(systemName: "calendar")
                     .foregroundColor(.secondary)
-                Text("다음 복습: \(cardManager.naturalDueLabel(for: card))")
+                let due = cardManager.dueDate(for: card)
+                let dueLabel = cardManager.naturalDueLabel(for: card)
+                let dateText = due.map { " (" + cardManager.formattedDateLabel(date: $0) + ")" } ?? ""
+                Text("다음 복습: \(dueLabel)\(dateText)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
