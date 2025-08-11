@@ -4,6 +4,7 @@ struct CardReviewView: View {
     @ObservedObject var cardManager: CardManagerObservable
     @State private var showAnswer = false
     @State private var currentIndex: Int = 0
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(spacing: 20) {
@@ -55,7 +56,7 @@ struct CardReviewView: View {
                     }
                 }
                 .frame(minWidth: 340, maxWidth: 480)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.clear)
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
                 .padding(.horizontal, 8)
@@ -153,8 +154,8 @@ struct CardReviewView: View {
             }
         }
         .padding(24)
-        .background(Color(NSColor.controlColor))
-        .cornerRadius(16)
+        .background(cardManager.todayReviewCards.isEmpty ? Color(NSColor.controlColor) : Color.gray.opacity(0.12))
+        .cornerRadius(12)
     }
     
     private func nextCard() {
