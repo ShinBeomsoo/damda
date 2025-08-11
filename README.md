@@ -1,7 +1,6 @@
 # DAMDA
 
-할 일, 타이머, 목표 추적, 암기카드(Anki 스타일)까지 한 번에 관리하는 macOS 앱  
-Todo 관리부터 학습 시간 추적, Deck 기반 복습까지 올인원 생산성 툴입니다.
+할 일, 타이머, 목표 달성 여부, 암기카드(Anki 스타일)까지 한 번에 관리하는 macOS 생산성 앱입니다. vibe coding을 통해 AI 어시스턴트와의 대화로 개발되었습니다.
 
 ![screenshot](docs/main.png)
 
