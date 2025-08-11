@@ -11,6 +11,8 @@ import Combine
 
 class CardManagerObservable: ObservableObject {
     @Published var cards: [Card] = []
+    @Published var decks: [NSManagedObject] = []
+    @Published var selectedDeckId: Int64? = nil
     private let context: NSManagedObjectContext
     private let defaults = UserDefaults.standard
     private let useSM2Scheduling = true
@@ -18,6 +20,7 @@ class CardManagerObservable: ObservableObject {
     init(context: NSManagedObjectContext) {
         self.context = context
         fetchCards()
+        fetchDecks()
     }
 
     func fetchCards() {
@@ -28,7 +31,36 @@ class CardManagerObservable: ObservableObject {
         }
     }
 
-    func addCard(question: String, answer: String) {
+    func fetchDecks() {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "Deck")
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
+        if let results = try? context.fetch(request) {
+            decks = results
+        }
+    }
+
+    // MARK: - Helpers
+    private func deckIdValue(of card: Card) -> Int64? {
+        if let num = card.value(forKey: "deckId") as? NSNumber {
+            return num.int64Value
+        }
+        return card.value(forKey: "deckId") as? Int64
+    }
+
+    private func deckIdValue(of deck: NSManagedObject) -> Int64? {
+        if let num = deck.value(forKey: "id") as? NSNumber { return num.int64Value }
+        return deck.value(forKey: "id") as? Int64
+    }
+
+    func deckName(for card: Card) -> String? {
+        guard let did = deckIdValue(of: card) else { return nil }
+        if let deck = decks.first(where: { deckIdValue(of: $0) == did }) {
+            return deck.value(forKey: "name") as? String
+        }
+        return nil
+    }
+
+    func addCard(question: String, answer: String, deckId: Int64? = nil) {
         let card = Card(context: context)
         card.id = Int64(Date().timeIntervalSince1970 * 1000)
         card.question = question
@@ -38,10 +70,70 @@ class CardManagerObservable: ObservableObject {
         card.reviewCount = 0
         card.successCount = 0
         card.failCount = 0
+        // 우선순위: 전달받은 deckId가 있으면 사용, 없으면 현재 선택 덱 사용
+        let appliedDeckId = deckId ?? selectedDeckId
+        if let deckId = appliedDeckId {
+            card.setValue(NSNumber(value: deckId), forKey: "deckId")
+        }
         try? context.save()
         // Initialize SM-2 state in persistent storage (UserDefaults)
         initializeSM2StateIfNeeded(for: card)
         fetchCards()
+    }
+
+    // MARK: - Deck CRUD
+    func addDeck(name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        guard let entity = NSEntityDescription.entity(forEntityName: "Deck", in: context) else { return }
+        let deck = NSManagedObject(entity: entity, insertInto: context)
+        deck.setValue(Int64(Date().timeIntervalSince1970 * 1000), forKey: "id")
+        deck.setValue(trimmed, forKey: "name")
+        deck.setValue(Date(), forKey: "createdAt")
+        try? context.save()
+        fetchDecks()
+    }
+
+    func renameDeck(id: Int64, newName: String) {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if let deck = decks.first(where: { deckIdValue(of: $0) == id }) {
+            deck.setValue(trimmed, forKey: "name")
+            try? context.save()
+            fetchDecks()
+            DispatchQueue.main.async { self.objectWillChange.send() }
+        }
+    }
+
+    // v1: 삭제 제한 또는 모든 카드 deckId=nil 처리
+    func deleteDeck(id: Int64) {
+        guard let deck = decks.first(where: { deckIdValue(of: $0) == id }) else { return }
+        // 카드 일괄 해제
+        let affected = cards.filter { deckIdValue(of: $0) == id }
+        affected.forEach { card in
+            card.setValue(nil, forKey: "deckId")
+        }
+        context.delete(deck)
+        try? context.save()
+        fetchDecks()
+        fetchCards()
+        if selectedDeckId == id { selectedDeckId = nil }
+    }
+
+    // MARK: - Deck assignment
+    func setDeck(card: Card, deckId: Int64?) {
+        if let deckId { card.setValue(NSNumber(value: deckId), forKey: "deckId") } else { card.setValue(nil, forKey: "deckId") }
+        try? context.save()
+        // Fetch to refresh snapshots so filtered list updates immediately
+        fetchCards()
+        DispatchQueue.main.async { self.objectWillChange.send() }
+    }
+
+    func clearDeck(card: Card) { setDeck(card: card, deckId: nil) }
+
+    var cardsForSelectedDeck: [Card] {
+        guard let deckId = selectedDeckId else { return cards }
+        return cards.filter { deckIdValue(of: $0) == deckId }
     }
 
     func deleteCard(card: Card) {
@@ -57,10 +149,11 @@ class CardManagerObservable: ObservableObject {
         fetchCards()
     }
 
-    // 오늘 복습할 카드 목록 (dueDate 기반)
+    // 오늘 복습할 카드 목록 (선택 덱 + dueDate 기반)
     var todayReviewCards: [Card] {
         let today = Calendar.current.startOfDay(for: Date())
-        return cards.filter { card in
+        let base = cardsForSelectedDeck
+        return base.filter { card in
             guard let due = dueDate(for: card) else { return true }
             return due <= today
         }
@@ -214,17 +307,13 @@ class CardManagerObservable: ObservableObject {
         let current = Int(card.reviewInterval)
         let state = loadSM2State(for: card)
         let (fail, med, succ) = previewIntervals(for: card)
-        let base = card.lastReviewedAt ?? Date()
-        let failDate = computeDueDate(base: base, days: fail) ?? Date()
-        let medDate  = computeDueDate(base: base, days: med) ?? Date()
-        let succDate = computeDueDate(base: base, days: succ) ?? Date()
-        let failLabel = naturalDaysString(days: fail) + " (" + formattedDateLabel(date: failDate) + ")"
-        let medLabel  = naturalDaysString(days: med)  + " (" + formattedDateLabel(date: medDate)  + ")"
-        let succLabel = naturalDaysString(days: succ) + " (" + formattedDateLabel(date: succDate) + ")"
+        let failLabel = naturalDaysString(days: fail)
+        let medLabel  = naturalDaysString(days: med)
+        let succLabel = naturalDaysString(days: succ)
         let baseTip = "SM-2 기준 · 현재 EF: \(String(format: "%.2f", state.easeFactor)) · 반복: \(state.repetitionCount) · 현 간격: \(current)일"
-        let failTip = baseTip + "\n결과: 모름 → 다음 간격 \(fail)일 (" + formattedDateLabel(date: failDate) + ") · " + approxRelativeString(days: fail)
-        let medTip  = baseTip + "\n결과: 애매함 → 다음 간격 \(med)일 (" + formattedDateLabel(date: medDate) + ") · " + approxRelativeString(days: med)
-        let succTip = baseTip + "\n결과: 알고 있음 → 다음 간격 \(succ)일 (" + formattedDateLabel(date: succDate) + ") · " + approxRelativeString(days: succ)
+        let failTip = baseTip + "\n결과: 모름 → 다음 간격 \(fail)일 · " + approxRelativeString(days: fail)
+        let medTip  = baseTip + "\n결과: 애매함 → 다음 간격 \(med)일 · " + approxRelativeString(days: med)
+        let succTip = baseTip + "\n결과: 알고 있음 → 다음 간격 \(succ)일 · " + approxRelativeString(days: succ)
         return (
             PreviewInfo(days: fail, label: failLabel, tooltip: failTip),
             PreviewInfo(days: med,  label: medLabel,  tooltip: medTip),

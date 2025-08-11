@@ -93,6 +93,7 @@ enum SidebarItem: String, CaseIterable {
     case statistics = "statistics"
     case todos = "todos"
     case flashcards = "flashcards"
+    case deckManagement = "deckManagement"
     
     var title: String {
         switch self {
@@ -100,6 +101,7 @@ enum SidebarItem: String, CaseIterable {
         case .statistics: return "통계"
         case .todos: return "할 일"
         case .flashcards: return "암기카드"
+        case .deckManagement: return "덱 관리"
         }
     }
     
@@ -109,6 +111,7 @@ enum SidebarItem: String, CaseIterable {
         case .statistics: return "chart.line.uptrend.xyaxis"
         case .todos: return "checklist"
         case .flashcards: return "rectangle.on.rectangle"
+        case .deckManagement: return "folder"
         }
     }
 }
@@ -418,6 +421,8 @@ struct MainView: View {
                     TodosView(todoManager: todoManager)
                 case .flashcards:
                     FlashcardsView(cardManager: cardManager)
+                case .deckManagement:
+                    DeckManagementView(cardManager: cardManager)
                 }
             }
             .padding()
@@ -498,6 +503,7 @@ struct FlashcardsView: View {
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
+            // 카드 추가 시 덱 선택 전용 메뉴를 전달
             CardListView(cardManager: cardManager)
         }
     }
