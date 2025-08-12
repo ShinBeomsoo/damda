@@ -148,11 +148,6 @@ private struct SessionCardView: View {
                 .scaleEffect(isPressed ? 0.95 : 1.0)
             }
             .buttonStyle(PlainButtonStyle())
-            .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = pressing
-                }
-            }, perform: {})
         }
         .frame(minWidth: 180, maxWidth: .infinity)
         .padding()
@@ -163,6 +158,7 @@ private struct SessionCardView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(isCurrent ? Color(hex: "E06552").opacity(0.3) : Color.clear, lineWidth: 1)
                 )
+                .allowsHitTesting(false)
         )
         .shadow(color: isCurrent ? Color(hex: "E06552").opacity(0.2) : Color.black.opacity(0.05), radius: isCurrent ? 8 : 4, x: 0, y: 2)
         .animation(.easeInOut(duration: 0.3), value: isCurrent)

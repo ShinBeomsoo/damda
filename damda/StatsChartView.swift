@@ -29,6 +29,7 @@ struct StatsChartView: View {
             .chartYScale(domain: 0...max(timeRecords.map { $0.seconds / 60 }.max() ?? 60, 60))
             .padding(.bottom, 8)
             .overlay(Text("최근 7일 집중 시간").font(.caption), alignment: .topLeading)
+            .allowsHitTesting(false)
 
             Chart {
                 ForEach(todoRecords, id: \.date) { record in
@@ -42,6 +43,7 @@ struct StatsChartView: View {
             .frame(height: 120)
             .chartYScale(domain: 0...max(todoRecords.map { $0.count }.max() ?? 5, 5))
             .overlay(Text("최근 7일 할 일 완료 개수").font(.caption), alignment: .topLeading)
+            .allowsHitTesting(false)
         }
         .padding()
         .background(Color.gray.opacity(0.12))
