@@ -21,17 +21,55 @@
 			remoteGlobalIDString = 44C6780E2E437B0B0078C5B5;
 			remoteInfo = damda;
 		};
+		44DC14052E4A4B3600A30381 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 44C678072E437B0B0078C5B5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 44DC13F12E4A4B3500A30381;
+			remoteInfo = "damda-dev";
+		};
+		44DC140F2E4A4B3700A30381 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 44C678072E437B0B0078C5B5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 44DC13F12E4A4B3500A30381;
+			remoteInfo = "damda-dev";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		44C6780F2E437B0B0078C5B5 /* damda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = damda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44C6781D2E437B0C0078C5B5 /* damdaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = damdaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		44C678272E437B0C0078C5B5 /* damdaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = damdaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		44DC13F22E4A4B3500A30381 /* damda-dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "damda-dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		44DC14042E4A4B3600A30381 /* damda-devTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "damda-devTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		44DC140E2E4A4B3600A30381 /* damda-devUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "damda-devUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		44AD36D52E4A519100388E62 /* Exceptions for "damda" folder in "damda" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Model/damda-dev.xcdatamodeld",
+			);
+			target = 44C6780E2E437B0B0078C5B5 /* damda */;
+		};
+		44AD36D72E4A519500388E62 /* Exceptions for "damda" folder in "damda-dev" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Model/damda-dev.xcdatamodeld",
+			);
+			target = 44DC13F12E4A4B3500A30381 /* damda-dev */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		44C678112E437B0B0078C5B5 /* damda */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				44AD36D52E4A519100388E62 /* Exceptions for "damda" folder in "damda" target */,
+				44AD36D72E4A519500388E62 /* Exceptions for "damda" folder in "damda-dev" target */,
+			);
 			path = damda;
 			sourceTree = "<group>";
 		};
@@ -43,6 +81,21 @@
 		44C6782A2E437B0C0078C5B5 /* damdaUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = damdaUITests;
+			sourceTree = "<group>";
+		};
+		44DC13F32E4A4B3500A30381 /* damda-dev */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "damda-dev";
+			sourceTree = "<group>";
+		};
+		44DC14072E4A4B3600A30381 /* damda-devTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "damda-devTests";
+			sourceTree = "<group>";
+		};
+		44DC14112E4A4B3700A30381 /* damda-devUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "damda-devUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +122,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		44DC13EF2E4A4B3500A30381 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC14012E4A4B3600A30381 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC140B2E4A4B3600A30381 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +152,9 @@
 				44C678112E437B0B0078C5B5 /* damda */,
 				44C678202E437B0C0078C5B5 /* damdaTests */,
 				44C6782A2E437B0C0078C5B5 /* damdaUITests */,
+				44DC13F32E4A4B3500A30381 /* damda-dev */,
+				44DC14072E4A4B3600A30381 /* damda-devTests */,
+				44DC14112E4A4B3700A30381 /* damda-devUITests */,
 				44C678102E437B0B0078C5B5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +165,9 @@
 				44C6780F2E437B0B0078C5B5 /* damda.app */,
 				44C6781D2E437B0C0078C5B5 /* damdaTests.xctest */,
 				44C678272E437B0C0078C5B5 /* damdaUITests.xctest */,
+				44DC13F22E4A4B3500A30381 /* damda-dev.app */,
+				44DC14042E4A4B3600A30381 /* damda-devTests.xctest */,
+				44DC140E2E4A4B3600A30381 /* damda-devUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -163,6 +243,74 @@
 			productReference = 44C678272E437B0C0078C5B5 /* damdaUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		44DC13F12E4A4B3500A30381 /* damda-dev */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44DC14162E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-dev" */;
+			buildPhases = (
+				44DC13EE2E4A4B3500A30381 /* Sources */,
+				44DC13EF2E4A4B3500A30381 /* Frameworks */,
+				44DC13F02E4A4B3500A30381 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				44DC13F32E4A4B3500A30381 /* damda-dev */,
+			);
+			name = "damda-dev";
+			packageProductDependencies = (
+			);
+			productName = "damda-dev";
+			productReference = 44DC13F22E4A4B3500A30381 /* damda-dev.app */;
+			productType = "com.apple.product-type.application";
+		};
+		44DC14032E4A4B3600A30381 /* damda-devTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44DC14192E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-devTests" */;
+			buildPhases = (
+				44DC14002E4A4B3600A30381 /* Sources */,
+				44DC14012E4A4B3600A30381 /* Frameworks */,
+				44DC14022E4A4B3600A30381 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				44DC14062E4A4B3600A30381 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44DC14072E4A4B3600A30381 /* damda-devTests */,
+			);
+			name = "damda-devTests";
+			packageProductDependencies = (
+			);
+			productName = "damda-devTests";
+			productReference = 44DC14042E4A4B3600A30381 /* damda-devTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		44DC140D2E4A4B3600A30381 /* damda-devUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44DC141C2E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-devUITests" */;
+			buildPhases = (
+				44DC140A2E4A4B3600A30381 /* Sources */,
+				44DC140B2E4A4B3600A30381 /* Frameworks */,
+				44DC140C2E4A4B3600A30381 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				44DC14102E4A4B3700A30381 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44DC14112E4A4B3700A30381 /* damda-devUITests */,
+			);
+			name = "damda-devUITests";
+			packageProductDependencies = (
+			);
+			productName = "damda-devUITests";
+			productReference = 44DC140E2E4A4B3600A30381 /* damda-devUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +332,17 @@
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 44C6780E2E437B0B0078C5B5;
 					};
+					44DC13F12E4A4B3500A30381 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					44DC14032E4A4B3600A30381 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 44DC13F12E4A4B3500A30381;
+					};
+					44DC140D2E4A4B3600A30381 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 44DC13F12E4A4B3500A30381;
+					};
 				};
 			};
 			buildConfigurationList = 44C6780A2E437B0B0078C5B5 /* Build configuration list for PBXProject "damda" */;
@@ -204,6 +363,9 @@
 				44C6780E2E437B0B0078C5B5 /* damda */,
 				44C6781C2E437B0C0078C5B5 /* damdaTests */,
 				44C678262E437B0C0078C5B5 /* damdaUITests */,
+				44DC13F12E4A4B3500A30381 /* damda-dev */,
+				44DC14032E4A4B3600A30381 /* damda-devTests */,
+				44DC140D2E4A4B3600A30381 /* damda-devUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -224,6 +386,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		44C678252E437B0C0078C5B5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC13F02E4A4B3500A30381 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC14022E4A4B3600A30381 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC140C2E4A4B3600A30381 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -254,6 +437,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		44DC13EE2E4A4B3500A30381 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC14002E4A4B3600A30381 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44DC140A2E4A4B3600A30381 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -266,6 +470,16 @@
 			isa = PBXTargetDependency;
 			target = 44C6780E2E437B0B0078C5B5 /* damda */;
 			targetProxy = 44C678282E437B0C0078C5B5 /* PBXContainerItemProxy */;
+		};
+		44DC14062E4A4B3600A30381 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 44DC13F12E4A4B3500A30381 /* damda-dev */;
+			targetProxy = 44DC14052E4A4B3600A30381 /* PBXContainerItemProxy */;
+		};
+		44DC14102E4A4B3700A30381 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 44DC13F12E4A4B3500A30381 /* damda-dev */;
+			targetProxy = 44DC140F2E4A4B3700A30381 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -504,6 +718,120 @@
 			};
 			name = Release;
 		};
+		44DC14172E4A4B3700A30381 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "damda-dev/damda_dev.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-dev";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		44DC14182E4A4B3700A30381 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "damda-dev/damda_dev.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-dev";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		44DC141A2E4A4B3700A30381 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-devTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/damda-dev.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/damda-dev";
+			};
+			name = Debug;
+		};
+		44DC141B2E4A4B3700A30381 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-devTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/damda-dev.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/damda-dev";
+			};
+			name = Release;
+		};
+		44DC141D2E4A4B3700A30381 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-devUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "damda-dev";
+			};
+			name = Debug;
+		};
+		44DC141E2E4A4B3700A30381 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.com.beomsooshin.damda-devUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "damda-dev";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -539,6 +867,33 @@
 			buildConfigurations = (
 				44C678382E437B0C0078C5B5 /* Debug */,
 				44C678392E437B0C0078C5B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		44DC14162E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-dev" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44DC14172E4A4B3700A30381 /* Debug */,
+				44DC14182E4A4B3700A30381 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		44DC14192E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-devTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44DC141A2E4A4B3700A30381 /* Debug */,
+				44DC141B2E4A4B3700A30381 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		44DC141C2E4A4B3700A30381 /* Build configuration list for PBXNativeTarget "damda-devUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44DC141D2E4A4B3700A30381 /* Debug */,
+				44DC141E2E4A4B3700A30381 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

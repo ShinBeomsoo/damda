@@ -20,8 +20,10 @@ class TimerManagerObservable: ObservableObject {
         self.currentSession = manager.currentSession
         self.elapsedSeconds = manager.elapsedSeconds
         
-        // 앱 재시작 시 세션 복원
+        // 앱 재시작 시, 현재 진행 중 세션은 복원하지 않고(초기에는 모두 '시작' 상태), 누적 시간만 복원
         restoreSessionIfNeeded()
+        self.currentSession = nil
+        self.isRunning = false
         
         // 자동 저장 타이머 시작
         startAutoSaveTimer()
@@ -70,11 +72,7 @@ class TimerManagerObservable: ObservableObject {
     }
     
     private func restoreSessionIfNeeded() {
-        if let savedSessionRaw = UserDefaults.standard.object(forKey: "currentSession") as? String,
-           let savedSession = TimerSession(rawValue: savedSessionRaw) {
-            currentSession = savedSession
-        }
-        
+        // 현재 진행 세션은 복원하지 않음 (초기엔 모두 '시작' 상태를 원함)
         if let savedElapsedSeconds = UserDefaults.standard.object(forKey: "elapsedSeconds") as? [String: Int] {
             var restoredSeconds: [TimerSession: Int] = [:]
             for (key, value) in savedElapsedSeconds {
@@ -100,10 +98,18 @@ class TimerManagerObservable: ObservableObject {
     private func startTimerTick() {
         stopTimerTick()
         guard let session = currentSession else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        let newTimer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-            self.elapsedSeconds[session, default: 0] += 1
+            DispatchQueue.main.async {
+                // 명시적으로 변경 이벤트와 재할당로 퍼블리시 강제
+                self.objectWillChange.send()
+                var next = self.elapsedSeconds
+                next[session, default: 0] += 1
+                self.elapsedSeconds = next
+            }
         }
+        self.timer = newTimer
+        RunLoop.main.add(newTimer, forMode: .common)
     }
 
     private func stopTimerTick() {

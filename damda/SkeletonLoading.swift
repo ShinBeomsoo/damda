@@ -21,6 +21,7 @@ struct SkeletonView: View {
                     )
                     .offset(x: isAnimating ? 200 : -200)
             )
+            .allowsHitTesting(false)
             .clipped()
             .onAppear {
                 withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
