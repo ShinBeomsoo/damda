@@ -109,7 +109,9 @@ echo
 echo "Artifacts written to: $OUT_BASE"
 ls -lh "$OUT_BASE" | cat
 
-# Optional: keep staging for debugging; uncomment next line to remove
-# rm -rf "$STAGING_DIR"
+# Clean up staging by default; set KEEP_TMP=1 to keep for debugging
+if [ "${KEEP_TMP:-0}" != "1" ]; then
+  rm -rf "$STAGING_DIR"
+fi
 
 
