@@ -8,7 +8,7 @@ struct CardReviewView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("오늘 복습할 암기 카드")
+            Text(LocalizationManager.shared.localized("오늘 복습할 암기 카드"))
                 .font(.pretendard(18, weight: .semibold))
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -17,7 +17,7 @@ struct CardReviewView: View {
                 let currentCard = cardManager.todayReviewCards[currentIndex]
                 
                 VStack(spacing: 16) {
-                    Text(currentCard.question ?? "질문 없음")
+                    Text(currentCard.question ?? LocalizationManager.shared.localized("질문 없음"))
                         .font(.pretendard(20, weight: .semibold))
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
@@ -29,7 +29,7 @@ struct CardReviewView: View {
                         ))
 
                     if showAnswer {
-                        Text(currentCard.answer ?? "답변 없음")
+                        Text(currentCard.answer ?? LocalizationManager.shared.localized("답변 없음"))
                             .font(.pretendard(16))
                             .foregroundColor(.primary)
                             .multilineTextAlignment(.center)
@@ -42,7 +42,7 @@ struct CardReviewView: View {
                         Button(action: { 
                             withAnimation(.easeInOut(duration: 0.3)) { showAnswer = true } 
                         }) {
-                            Text("답 보기")
+                            Text(LocalizationManager.shared.localized("답 보기"))
                                 .font(.pretendard(14, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 24)
@@ -70,7 +70,7 @@ struct CardReviewView: View {
                         }
                     }) {
                         HStack(spacing: 6) {
-                            Text("모름 · \(preview.fail.label)")
+                            Text("\(LocalizationManager.shared.localized("모름")) · \(preview.fail.label)")
                             Image(systemName: "info.circle")
                                 .help(preview.fail.tooltip)
                         }
@@ -91,7 +91,7 @@ struct CardReviewView: View {
                         }
                     }) {
                         HStack(spacing: 6) {
-                            Text("애매함 · \(preview.medium.label)")
+                            Text("\(LocalizationManager.shared.localized("애매함")) · \(preview.medium.label)")
                             Image(systemName: "info.circle")
                                 .help(preview.medium.tooltip)
                         }
@@ -112,7 +112,7 @@ struct CardReviewView: View {
                         }
                     }) {
                         HStack(spacing: 6) {
-                            Text("알고 있음 · \(preview.success.label)")
+                            Text("\(LocalizationManager.shared.localized("알고 있음")) · \(preview.success.label)")
                             Image(systemName: "info.circle")
                                 .help(preview.success.tooltip)
                         }
@@ -141,10 +141,10 @@ struct CardReviewView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.pretendard(48))
                         .foregroundColor(.green)
-                    Text("오늘 복습할 카드가 없습니다!")
+                    Text(LocalizationManager.shared.localized("오늘 복습할 카드가 없습니다!"))
                         .font(.headline)
                         .foregroundColor(.primary)
-                    Text("새로운 카드를 추가하거나 내일 다시 확인해보세요.")
+                    Text(LocalizationManager.shared.localized("새로운 카드를 추가하거나 내일 다시 확인해보세요."))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)

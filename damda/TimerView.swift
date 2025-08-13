@@ -16,7 +16,7 @@ struct TimerView: View {
         VStack(spacing: 16) {
             // 헤더
             HStack {
-                Text("학습 시간")
+                Text(LocalizationManager.shared.localized("학습 시간"))
                     .font(.pretendard(18, weight: .semibold))
                 Spacer()
                 Button(action: { showSessionInfo.toggle() }) {
@@ -47,7 +47,7 @@ struct TimerView: View {
             }
             
             // 리셋 버튼
-            Button("리셋") {
+            Button(LocalizationManager.shared.localized("리셋")) {
                 showResetAlert = true
             }
             .buttonStyle(.bordered)
@@ -55,13 +55,13 @@ struct TimerView: View {
             .padding(.top, 8)
         }
         .padding()
-        .alert("타이머 리셋", isPresented: $showResetAlert) {
-            Button("취소", role: .cancel) { }
-            Button("리셋", role: .destructive) {
+        .alert(LocalizationManager.shared.localized("타이머 리셋"), isPresented: $showResetAlert) {
+            Button(LocalizationManager.shared.localized("취소"), role: .cancel) { }
+            Button(LocalizationManager.shared.localized("리셋"), role: .destructive) {
                 timerManager.reset()
             }
         } message: {
-            Text("모든 세션의 시간을 0으로 초기화하시겠습니까?")
+            Text(LocalizationManager.shared.localized("모든 세션의 시간을 0으로 초기화하시겠습니까?"))
         }
         .sheet(isPresented: $showSessionInfo) {
             SessionInfoView()
@@ -70,9 +70,9 @@ struct TimerView: View {
 
     func sessionTitle(_ session: TimerSession) -> String {
         switch session {
-        case .morning: return "아침"
-        case .afternoon: return "오후"
-        case .evening: return "저녁"
+        case .morning: return LocalizationManager.shared.localized("아침")
+        case .afternoon: return LocalizationManager.shared.localized("오후")
+        case .evening: return LocalizationManager.shared.localized("저녁")
         }
     }
 

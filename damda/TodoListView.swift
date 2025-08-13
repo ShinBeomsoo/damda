@@ -24,7 +24,7 @@ struct TodoListView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("오늘의 할 일")
+            Text(LocalizationManager.shared.localized("오늘의 할 일"))
                 .font(.pretendard(18, weight: .semibold))
 
             ScrollView {
@@ -85,7 +85,7 @@ struct TodoRowView: View {
                     .foregroundColor(priorityColor(Int(todo.priority)))
 
                 if editingTodoID == todo.objectID {
-                    TextField("할 일 수정", text: $editingText, onCommit: {
+                    TextField(LocalizationManager.shared.localized("할 일 수정"), text: $editingText, onCommit: {
                         todoManager.updateTodoText(todo: todo, newText: editingText)
                         editingTodoID = nil
                     })

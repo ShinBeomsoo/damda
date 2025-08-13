@@ -31,6 +31,7 @@ struct ContentView: View {
     @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var todoManager = TodoManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var streakManager = StreakManagerObservable(context: PersistenceController.shared.container.viewContext)
+    @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
     @State private var selectedDate: Date = Date()
     @State private var showGoalAchievement = false
     @State private var selectedSidebarItem: SidebarItem = .today
@@ -73,6 +74,8 @@ struct ContentView: View {
         }
         .frame(minWidth: 1200, minHeight: 700)
         .preferredColorScheme(isDarkMode ? .dark : .light)
+        .environment(\.locale, Locale(identifier: appLanguageCode))
+        .id(appLanguageCode)
         .onChange(of: timerManager.totalSeconds) { _, _ in
             checkAndUpdateStreak()
         }
@@ -173,11 +176,11 @@ enum SidebarItem: String, CaseIterable {
     
     var title: String {
         switch self {
-        case .today: return "오늘"
-        case .statistics: return "통계"
-        case .todos: return "할 일"
-        case .flashcards: return "암기카드"
-        case .deckManagement: return "덱 관리"
+        case .today: return LocalizationManager.shared.localized("오늘")
+        case .statistics: return LocalizationManager.shared.localized("통계")
+        case .todos: return LocalizationManager.shared.localized("할 일")
+        case .flashcards: return LocalizationManager.shared.localized("암기카드")
+        case .deckManagement: return LocalizationManager.shared.localized("덱 관리")
         }
     }
     
@@ -197,6 +200,7 @@ struct SidebarView: View {
     @Binding var isDarkMode: Bool
     @Binding var autoEndOfDayEnabled: Bool
     let onRequestEndOfDay: () -> Void
+    @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
     
     var body: some View {
         VStack(spacing: 0) {
@@ -206,7 +210,7 @@ struct SidebarView: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(Color(hex: "E06552"))
-                Text("학습 관리 앱")
+                Text(LocalizationManager.shared.localized("학습 관리 앱"))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -218,7 +222,7 @@ struct SidebarView: View {
                 Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
                     .font(.system(size: 14))
                     .foregroundColor(isDarkMode ? .yellow : .orange)
-                Text(isDarkMode ? "다크모드" : "라이트모드")
+                Text(isDarkMode ? LocalizationManager.shared.localized("다크모드") : LocalizationManager.shared.localized("라이트모드"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.primary)
                 Spacer()
@@ -264,7 +268,34 @@ struct SidebarView: View {
                 .padding(.bottom, 10)
             
             VStack(alignment: .leading, spacing: 8) {
-                Text("하루 마감")
+                // Language picker (instant apply)
+                HStack(spacing: 8) {
+                    Image(systemName: "globe")
+                        .font(.system(size: 14))
+                        .foregroundColor(.blue)
+                    Text(LocalizationManager.shared.localized("언어"))
+                        .font(.system(size: 12, weight: .medium))
+                    Spacer()
+                    Picker("", selection: $appLanguageCode) {
+                        Text(LocalizationManager.shared.localized("한국어")).tag("ko")
+                        Text(LocalizationManager.shared.localized("English")).tag("en")
+                    }
+                    .frame(width: 120)
+                    .pickerStyle(.menu)
+                    .onChange(of: appLanguageCode) { _, newValue in
+                        UserDefaults.standard.set(newValue, forKey: "appLanguageCode")
+                        // 즉시 리렌더 유도
+                        selectedItem = selectedItem
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.05))
+                )
+                .frame(height: 28)
+                Text(LocalizationManager.shared.localized("하루 마감"))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 16)
@@ -273,7 +304,7 @@ struct SidebarView: View {
                     Image(systemName: "calendar.badge.clock")
                         .font(.system(size: 14))
                         .foregroundColor(.blue)
-                    Text("자동 하루 마감")
+                    Text(LocalizationManager.shared.localized("자동 하루 마감"))
                         .font(.system(size: 12, weight: .medium))
                     Spacer()
                     Toggle("", isOn: $autoEndOfDayEnabled)
@@ -290,7 +321,7 @@ struct SidebarView: View {
                 Button(action: onRequestEndOfDay) {
                     HStack {
                         Image(systemName: "tray.and.arrow.down.fill")
-                        Text("하루 마감")
+                        Text(LocalizationManager.shared.localized("하루 마감"))
                             .font(.system(size: 12, weight: .semibold))
                         Spacer()
                     }
@@ -353,13 +384,13 @@ struct GoalSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("오늘의 목표")
+            Text(LocalizationManager.shared.localized("오늘의 목표"))
                 .font(.title2).bold()
             
             // 공부 시간 목표 ProgressBar
             VStack(spacing: 4) {
                 HStack {
-                    Text("공부 시간: \(formatTime(timerManager.totalSeconds)) / 06:00:00")
+                    Text("\(LocalizationManager.shared.localized("공부 시간")): \(formatTime(timerManager.totalSeconds)) / 06:00:00")
                         .font(.subheadline)
                     Spacer()
                     Text("\(Int(Double(timerManager.totalSeconds) / Double(goalSeconds) * 100))%")
@@ -376,7 +407,7 @@ struct GoalSummaryView: View {
             // 할 일 목표 ProgressBar
             VStack(spacing: 4) {
                 HStack {
-                    Text("할 일: \(todoManager.completedCount) / \(goalTodos)")
+                    Text("\(LocalizationManager.shared.localized("할 일")): \(todoManager.completedCount) / \(goalTodos)")
                         .font(.subheadline)
                     Spacer()
                     Text("\(Int(Double(todoManager.completedCount) / Double(goalTodos) * 100))%")
@@ -395,7 +426,7 @@ struct GoalSummaryView: View {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
-                    Text("오늘 목표 달성!")
+                    Text(LocalizationManager.shared.localized("오늘 목표 달성!"))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
@@ -408,11 +439,11 @@ struct GoalSummaryView: View {
             HStack {
                 Image(systemName: "flame.fill")
                     .foregroundColor(.orange)
-                Text("연속 달성: \(streakManager.currentStreak)일")
+                Text("\(LocalizationManager.shared.localized("연속 달성")): \(streakManager.currentStreak)\(LocalizationManager.shared.localized("일"))")
                     .font(.subheadline)
                     .fontWeight(.medium)
                 Spacer()
-                Text("최대: \(streakManager.maxStreak)일")
+                Text("\(LocalizationManager.shared.localized("최대")): \(streakManager.maxStreak)\(LocalizationManager.shared.localized("일"))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -581,7 +612,7 @@ struct StatisticsView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            Text("학습 통계")
+            Text(LocalizationManager.shared.localized("학습 통계"))
                 .font(.title)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -594,14 +625,14 @@ struct StatisticsView: View {
             // 추가 통계 정보들
             HStack(spacing: 24) {
                 StatCard(
-                    title: "총 학습 시간",
+                    title: LocalizationManager.shared.localized("총 학습 시간"),
                     value: formatTime(timerManager.totalSeconds),
                     icon: "clock.fill",
                     color: .blue
                 )
                 
                 StatCard(
-                    title: "완료된 할 일",
+                    title: LocalizationManager.shared.localized("완료된 할 일"),
                     value: "\(todoManager.completedCount)개",
                     icon: "checkmark.circle.fill",
                     color: .green
@@ -622,7 +653,7 @@ struct FlashcardsView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            Text("암기카드 관리")
+            Text(LocalizationManager.shared.localized("암기카드 관리"))
                 .font(.title)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -667,22 +698,22 @@ struct TodosView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            Text("할 일 관리")
+            Text(LocalizationManager.shared.localized("할 일 관리"))
                 .font(.title)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             // 할 일 입력
             VStack(spacing: 12) {
-                Text("새로운 할 일 추가")
+                Text(LocalizationManager.shared.localized("새로운 할 일 추가"))
                     .font(.headline)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 HStack(spacing: 12) {
-                    TextField("할 일을 입력하세요", text: $newTodoText)
+                    TextField(LocalizationManager.shared.localized("할 일을 입력하세요"), text: $newTodoText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     
-                    Picker("우선순위", selection: $newTodoPriority) {
+                    Picker(LocalizationManager.shared.localized("우선순위"), selection: $newTodoPriority) {
                         ForEach(1...10, id: \.self) { priority in
                             Text("\(priority)").tag(Int16(priority))
                         }
@@ -743,7 +774,7 @@ struct DayDetailSidebarView: View {
                 
                 // 선택된 날짜의 상세 기록
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("\(selectedDate, formatter: dateFormatter) 기록")
+                    Text("\(selectedDate, formatter: dateFormatter) \(LocalizationManager.shared.localized("기록"))")
                         .font(.pretendard(18, weight: .semibold))
                     
                     let todos = todoManager.todos.filter { todo in
@@ -754,20 +785,20 @@ struct DayDetailSidebarView: View {
                     }
                     
                     if !todos.isEmpty {
-                        Text("할 일 완료: \(todos.count)개")
+                        Text("\(LocalizationManager.shared.localized("할 일 완료")): \(todos.count)\(LocalizationManager.shared.localized("개"))")
                         ForEach(todos, id: \.objectID) { todo in
                             Text("- \(todo.text ?? "")")
                                 .font(.subheadline)
                         }
                     } else {
-                        Text("할 일 완료: 0개")
+                        Text("\(LocalizationManager.shared.localized("할 일 완료")): 0\(LocalizationManager.shared.localized("개"))")
                     }
                     
                     let seconds = timerManager.dailyTimeRecords(forDays: 30).first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })?.seconds ?? 0
-                    Text("학습 시간: \(seconds / 3600)시간 \((seconds % 3600) / 60)분")
+                    Text("\(LocalizationManager.shared.localized("학습 시간")): \(seconds / 3600)\(LocalizationManager.shared.localized("시간")) \((seconds % 3600) / 60)\(LocalizationManager.shared.localized("분"))")
                     
                     let streak = streakManager.currentStreak
-                    Text("연속 달성: \(streak)일")
+                    Text("\(LocalizationManager.shared.localized("연속 달성")): \(streak)\(LocalizationManager.shared.localized("일"))")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -816,7 +847,12 @@ struct DayDetailSidebarView: View {
     
     var dateFormatter: DateFormatter {
         let df = DateFormatter()
-        df.dateFormat = "yyyy년 M월 d일"
+        df.locale = Locale(identifier: UserDefaults.standard.string(forKey: "appLanguageCode") ?? Locale.preferredLanguages.first ?? "ko")
+        if df.locale.identifier.hasPrefix("en") {
+            df.dateFormat = "yyyy MMM d"
+        } else {
+            df.dateFormat = "yyyy년 M월 d일"
+        }
         return df
     }
 }
@@ -829,21 +865,21 @@ struct TodayStudySummaryView: View {
             HStack {
                 Image(systemName: "clock.fill")
                     .foregroundColor(Color(hex: "E06552"))
-                Text("오늘의 공부 시간")
+                Text(LocalizationManager.shared.localized("오늘의 공부 시간"))
                     .font(.pretendard(18, weight: .semibold))
                 Spacer()
             }
             
             HStack(spacing: 16) {
                 StudyTimeCard(
-                    title: "총 시간",
+                    title: LocalizationManager.shared.localized("총 시간"),
                     time: formatTime(timerManager.totalSeconds),
                     icon: "clock.fill",
                     color: .blue
                 )
                 
                 StudyTimeCard(
-                    title: "목표 달성",
+                    title: LocalizationManager.shared.localized("목표 달성"),
                     time: "\(Int(Double(timerManager.totalSeconds) / Double(6 * 60 * 60) * 100))%",
                     icon: "target",
                     color: timerManager.totalSeconds >= 6 * 60 * 60 ? .green : .orange
@@ -853,7 +889,7 @@ struct TodayStudySummaryView: View {
             // 세션별 시간
             VStack(spacing: 8) {
                 HStack {
-                    Text("세션별")
+                    Text(LocalizationManager.shared.localized("세션별"))
                         .font(.subheadline)
                         .fontWeight(.medium)
                     Spacer()
@@ -861,7 +897,7 @@ struct TodayStudySummaryView: View {
                 
                 VStack(spacing: 8) {
                     SessionTimeCard(
-                        title: "아침",
+                        title: LocalizationManager.shared.localized("아침"),
                         time: formatTime(timerManager.elapsedSeconds[.morning] ?? 0),
                         color: .orange
                     )
@@ -870,7 +906,7 @@ struct TodayStudySummaryView: View {
                         .background(Color.gray.opacity(0.3))
                     
                     SessionTimeCard(
-                        title: "오후",
+                        title: LocalizationManager.shared.localized("오후"),
                         time: formatTime(timerManager.elapsedSeconds[.afternoon] ?? 0),
                         color: .blue
                     )
@@ -879,7 +915,7 @@ struct TodayStudySummaryView: View {
                         .background(Color.gray.opacity(0.3))
                     
                     SessionTimeCard(
-                        title: "저녁",
+                        title: LocalizationManager.shared.localized("저녁"),
                         time: formatTime(timerManager.elapsedSeconds[.evening] ?? 0),
                         color: .purple
                     )
@@ -894,7 +930,7 @@ struct TodayStudySummaryView: View {
     private func formatTime(_ seconds: Int) -> String {
         let h = seconds / 3600
         let m = (seconds % 3600) / 60
-        return "\(h)시간 \(m)분"
+        return "\(h)\(LocalizationManager.shared.localized("시간")) \(m)\(LocalizationManager.shared.localized("분"))"
     }
 }
 
@@ -962,7 +998,7 @@ struct PriorityTodosView: View {
             HStack {
                 Image(systemName: "flag.fill")
                     .foregroundColor(.orange)
-                Text("우선순위 할 일")
+                Text(LocalizationManager.shared.localized("우선순위 할 일"))
                     .font(.pretendard(18, weight: .semibold))
                 Spacer()
             }
@@ -972,7 +1008,7 @@ struct PriorityTodosView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
                         .foregroundColor(.green)
-                    Text("모든 할 일 완료!")
+                    Text(LocalizationManager.shared.localized("모든 할 일 완료!"))
                         .font(.pretendard(14))
                         .foregroundColor(.secondary)
                 }

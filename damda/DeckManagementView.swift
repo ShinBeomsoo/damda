@@ -11,15 +11,15 @@ struct DeckManagementView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            Text("덱 관리")
+            Text(LocalizationManager.shared.localized("덱 관리"))
                 .font(.title)
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 8) {
-                TextField("새 덱 이름", text: $newDeckName)
+                TextField(LocalizationManager.shared.localized("새 덱 이름"), text: $newDeckName)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                Button("추가") {
+                Button(LocalizationManager.shared.localized("추가")) {
                     let name = newDeckName.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !name.isEmpty else { return }
                     cardManager.addDeck(name: name)
@@ -32,12 +32,12 @@ struct DeckManagementView: View {
                 LazyVStack(alignment: .leading, spacing: 8) {
                     ForEach(cardManager.decks, id: \.objectID) { deck in
                         let did = (deck.value(forKey: "id") as? NSNumber)?.int64Value ?? (deck.value(forKey: "id") as? Int64)
-                        let name = (deck.value(forKey: "name") as? String) ?? "이름 없음"
+                        let name = (deck.value(forKey: "name") as? String) ?? LocalizationManager.shared.localized("이름 없음")
                         HStack(spacing: 8) {
                             if renameDeckId == did {
-                                TextField("덱 이름", text: $renameText)
+                                TextField(LocalizationManager.shared.localized("덱 이름"), text: $renameText)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                                Button("저장") {
+                                Button(LocalizationManager.shared.localized("저장")) {
                                     let t = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
                                     guard !t.isEmpty, let did = did else { return }
                                     cardManager.renameDeck(id: did, newName: t)
@@ -45,7 +45,7 @@ struct DeckManagementView: View {
                                     renameText = ""
                                 }
                                 .buttonStyle(.bordered)
-                                Button("취소") {
+                                Button(LocalizationManager.shared.localized("취소")) {
                                     renameDeckId = nil
                                     renameText = ""
                                 }
@@ -58,7 +58,7 @@ struct DeckManagementView: View {
                                     renameDeckId = did
                                     renameText = name
                                 } label: {
-                                    Label("이름 변경", systemImage: "pencil")
+                                    Label(LocalizationManager.shared.localized("이름 변경"), systemImage: "pencil")
                                 }
                                 .buttonStyle(.bordered)
                                 Button(role: .destructive) {
@@ -66,7 +66,7 @@ struct DeckManagementView: View {
                                     pendingDeleteName = name
                                     showDeleteAlert = true
                                 } label: {
-                                    Label("삭제", systemImage: "trash")
+                                    Label(LocalizationManager.shared.localized("삭제"), systemImage: "trash")
                                 }
                                 .buttonStyle(.bordered)
                             }
@@ -79,18 +79,18 @@ struct DeckManagementView: View {
             }
         }
         .padding()
-        .alert("정말 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
-            Button("삭제", role: .destructive) {
+        .alert(LocalizationManager.shared.localized("정말 삭제하시겠습니까?"), isPresented: $showDeleteAlert) {
+            Button(LocalizationManager.shared.localized("삭제"), role: .destructive) {
                 if let id = pendingDeleteId { cardManager.deleteDeck(id: id) }
                 pendingDeleteId = nil
                 pendingDeleteName = ""
             }
-            Button("취소", role: .cancel) {
+            Button(LocalizationManager.shared.localized("취소"), role: .cancel) {
                 pendingDeleteId = nil
                 pendingDeleteName = ""
             }
         } message: {
-            Text("덱 \"\(pendingDeleteName)\" 을(를) 삭제하면 카드들은 미지정으로 이동합니다.")
+            Text(String(format: LocalizationManager.shared.localized("덱 \"%@\" 을(를) 삭제하면 카드들은 미지정으로 이동합니다."), pendingDeleteName))
         }
     }
 }
