@@ -26,6 +26,7 @@ extension Font {
 }
 
 struct ContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var cardManager = CardManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var timerManager = TimerManagerObservable(context: PersistenceController.shared.container.viewContext)
     @StateObject private var todoManager = TodoManagerObservable(context: PersistenceController.shared.container.viewContext)
@@ -34,13 +35,23 @@ struct ContentView: View {
     @State private var showGoalAchievement = false
     @State private var selectedSidebarItem: SidebarItem = .today
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @State private var showRolloverDone = false
+    @State private var showConfirmEndOfDay = false
+    @AppStorage("autoEndOfDayEnabled", store: UserDefaults.environmentSpecific) private var autoEndOfDayEnabled = true
+    @AppStorage("lastRolloverDay", store: UserDefaults.environmentSpecific) private var lastRolloverDay: Double = 0
+    @State private var rolloverTimer: Timer?
     
     let goalSeconds = 6 * 60 * 60 // 6시간
     let goalTodos = 5
     
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView(selectedItem: $selectedSidebarItem, isDarkMode: $isDarkMode)
+            SidebarView(
+                selectedItem: $selectedSidebarItem,
+                isDarkMode: $isDarkMode,
+                autoEndOfDayEnabled: $autoEndOfDayEnabled,
+                onRequestEndOfDay: { showConfirmEndOfDay = true }
+            )
                 .frame(width: 200)
             Divider()
             MainView(
@@ -73,6 +84,31 @@ struct ContentView: View {
         } message: {
             Text("오늘의 목표를 달성했습니다! 연속 달성이 증가했습니다.")
         }
+        .alert("하루 마감", isPresented: $showConfirmEndOfDay) {
+            Button("취소", role: .cancel) { }
+            Button("마감", role: .destructive) { performEndOfDay() }
+        } message: {
+            Text("마감하면 어제 기록으로 저장되고 오늘은 초기화됩니다. 진행할까요?")
+        }
+        .onAppear {
+            handleActivation()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .active:
+                handleActivation()
+            case .background:
+                rolloverTimer?.invalidate()
+                rolloverTimer = nil
+            default:
+                break
+            }
+        }
+        .alert("하루 마감 완료", isPresented: $showRolloverDone) {
+            Button("확인") { }
+        } message: {
+            Text("어제 기록이 저장되고 오늘로 초기화되었습니다.")
+        }
     }
     
     private func checkAndUpdateStreak() {
@@ -85,6 +121,46 @@ struct ContentView: View {
         if isGoalMet && !wasGoalMet {
             showGoalAchievement = true
         }
+    }
+
+    private var viewContext: NSManagedObjectContext { PersistenceController.shared.container.viewContext }
+
+    private func performEndOfDay(now: Date = Date()) {
+        RolloverCoordinator.endOfDay(
+            now: now,
+            timerManager: timerManager,
+            todoManager: todoManager,
+            streakManager: streakManager,
+            context: viewContext
+        )
+        let start = Calendar.current.startOfDay(for: now)
+        lastRolloverDay = start.timeIntervalSince1970
+        showRolloverDone = true
+    }
+
+    private func handleActivation() {
+        let todayStart = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
+        if lastRolloverDay != 0 && lastRolloverDay != todayStart {
+            performEndOfDay()
+        }
+        lastRolloverDay = todayStart
+        scheduleMidnightTimerIfNeeded()
+    }
+
+    private func scheduleMidnightTimerIfNeeded() {
+        rolloverTimer?.invalidate()
+        rolloverTimer = nil
+        guard autoEndOfDayEnabled else { return }
+        let cal = Calendar.current
+        let now = Date()
+        guard let nextMidnight = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: now)) else { return }
+        let interval = nextMidnight.timeIntervalSince(now)
+        let timer = Timer.scheduledTimer(withTimeInterval: max(1, interval), repeats: false) { _ in
+            performEndOfDay(now: nextMidnight)
+            scheduleMidnightTimerIfNeeded()
+        }
+        rolloverTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
 }
 
@@ -119,6 +195,8 @@ enum SidebarItem: String, CaseIterable {
 struct SidebarView: View {
     @Binding var selectedItem: SidebarItem
     @Binding var isDarkMode: Bool
+    @Binding var autoEndOfDayEnabled: Bool
+    let onRequestEndOfDay: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -165,7 +243,45 @@ struct SidebarView: View {
                     .fill(Color.gray.opacity(0.05))
             )
             .padding(.horizontal, 12)
-            .padding(.bottom, 20)
+            .padding(.bottom, 8)
+            
+            // 하루 마감/자동 토글
+            VStack(spacing: 8) {
+                HStack {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 14))
+                        .foregroundColor(.blue)
+                    Text("자동 하루 마감")
+                        .font(.system(size: 12, weight: .medium))
+                    Spacer()
+                    Toggle("", isOn: $autoEndOfDayEnabled)
+                        .toggleStyle(SwitchToggleStyle())
+                        .labelsHidden()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.gray.opacity(0.05))
+                )
+                
+                Button(action: onRequestEndOfDay) {
+                    HStack {
+                        Image(systemName: "tray.and.arrow.down.fill")
+                        Text("하루 마감")
+                            .font(.system(size: 12, weight: .semibold))
+                        Spacer()
+                    }
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(hex: "E06552").opacity(0.12))
+                    )
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+            }
+            .padding(.bottom, 12)
             
             // 메뉴 아이템들
             VStack(spacing: 4) {
