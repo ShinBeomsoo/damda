@@ -34,7 +34,7 @@ class TimerManagerTests: XCTestCase {
     func testStartAndPauseSession() {
         timerManager.start(session: .morning)
         XCTAssertEqual(timerManager.currentSession, .morning)
-        // 타이머를 2초간 실행한 것처럼 시뮬레이션
+        // 타이머를 2초간 실행한 것처럼 시뮬레이션 (pause 시 추가 가산 없음 정책)
         timerManager.elapsedSeconds[.morning] = 2
         timerManager.pause()
         XCTAssertNil(timerManager.currentSession)

@@ -47,7 +47,7 @@ final class TimerFunctionalityTests: XCTestCase {
         XCTAssertEqual(timerManager.currentSession, .afternoon)
         
         // 잠시 대기
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1초 대기
+        try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초 대기 (정수 절단 방지)
         
         let beforePause = timerManager.elapsedSeconds[.afternoon] ?? 0
         
@@ -56,7 +56,7 @@ final class TimerFunctionalityTests: XCTestCase {
         XCTAssertNil(timerManager.currentSession)
         
         // 정지 후 시간이 증가하지 않았는지 확인
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1초 더 대기
+        try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초 더 대기
         let afterPause = timerManager.elapsedSeconds[.afternoon] ?? 0
         XCTAssertEqual(afterPause, beforePause)
     }
@@ -67,7 +67,7 @@ final class TimerFunctionalityTests: XCTestCase {
         
         // 타이머 시작하고 시간 증가
         timerManager.start(session: .evening)
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1초 대기
+        try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5초 대기
         
         // 리셋 전에 시간이 증가했는지 확인
         XCTAssertGreaterThan(timerManager.elapsedSeconds[.evening] ?? 0, 0)
@@ -88,7 +88,7 @@ final class TimerFunctionalityTests: XCTestCase {
         
         // 아침 세션 시작
         timerManager.start(session: .morning)
-        try await Task.sleep(nanoseconds: 500_000_000) // 0.5초 대기
+        try await Task.sleep(nanoseconds: 1_200_000_000) // 1.2초 대기
         
         // 오후 세션으로 변경 (아침 세션이 자동으로 정지되어야 함)
         timerManager.start(session: .afternoon)

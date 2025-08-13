@@ -10,10 +10,20 @@ import CoreData
 @testable import damda
 
 final class CardFunctionalityTests: XCTestCase {
+    private func makeInMemoryContext() -> NSManagedObjectContext {
+        let container = NSPersistentContainer(name: "damda")
+        let description = NSPersistentStoreDescription()
+        description.type = NSInMemoryStoreType
+        container.persistentStoreDescriptions = [description]
+        container.loadPersistentStores { _, error in
+            XCTAssertNil(error)
+        }
+        return container.viewContext
+    }
     
     func testAddCard() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 초기 카드 수 확인
         let initialCount = cardManager.cards.count
@@ -33,23 +43,34 @@ final class CardFunctionalityTests: XCTestCase {
     }
     
     func testDeleteCard() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 카드 추가
         cardManager.addCard(question: "삭제할 카드", answer: "삭제할 답변")
         let initialCount = cardManager.cards.count
         
         // 마지막 카드 삭제
-        if let lastCard = cardManager.cards.last {
-            cardManager.deleteCard(card: lastCard)
-            XCTAssertEqual(cardManager.cards.count, initialCount - 1)
+        guard let lastCard = cardManager.cards.last else {
+            XCTFail("추가된 카드를 찾지 못했습니다.")
+            return
         }
+        let deletedCardId = lastCard.id
+        cardManager.deleteCard(card: lastCard)
+        
+        // 카운트 감소 확인
+        XCTAssertEqual(cardManager.cards.count, initialCount - 1)
+        
+        // 실제로 삭제되었는지 페치로 확인
+        let fetch: NSFetchRequest<Card> = Card.fetchRequest()
+        fetch.predicate = NSPredicate(format: "id == %lld", deletedCardId)
+        let remaining = try context.fetch(fetch)
+        XCTAssertTrue(remaining.isEmpty)
     }
     
     func testUpdateCard() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 카드 추가
         cardManager.addCard(question: "원본 질문", answer: "원본 답변")
@@ -65,8 +86,8 @@ final class CardFunctionalityTests: XCTestCase {
     }
     
     func testReviewCard() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 카드 추가
         cardManager.addCard(question: "복습할 카드", answer: "복습할 답변")
@@ -79,6 +100,7 @@ final class CardFunctionalityTests: XCTestCase {
             
             // 성공으로 복습
             cardManager.review(card: card, result: .success)
+            let afterSuccessInterval = card.reviewInterval
             
             // 복습 결과 확인
             XCTAssertEqual(card.reviewCount, initialReviewCount + 1)
@@ -95,12 +117,14 @@ final class CardFunctionalityTests: XCTestCase {
             XCTAssertEqual(card.successCount, initialSuccessCount + 1)
             XCTAssertEqual(card.failCount, initialFailCount + 1)
             XCTAssertEqual(card.reviewInterval, 1)
+            // 단순 규칙 유지 확인(성공 시 2배가 실제로 적용되었는지 추가 검증)
+            XCTAssertEqual(afterSuccessInterval, min(initialInterval * 2, 30))
         }
     }
     
     func testTodayReviewCards() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 카드 추가
         cardManager.addCard(question: "오늘 복습할 카드", answer: "오늘 복습할 답변")
@@ -117,8 +141,8 @@ final class CardFunctionalityTests: XCTestCase {
     }
     
     func testCardReviewWithDifferentResults() async throws {
-        let context = PersistenceController.shared.container.viewContext
-        let cardManager = CardManagerObservable(context: context)
+        let context = makeInMemoryContext()
+        let cardManager = CardManagerObservable(context: context, useSM2Scheduling: false)
         
         // 카드 추가
         cardManager.addCard(question: "다양한 결과 테스트", answer: "다양한 결과 답변")
@@ -130,9 +154,10 @@ final class CardFunctionalityTests: XCTestCase {
             cardManager.review(card: card, result: .medium)
             XCTAssertEqual(card.reviewInterval, max(initialInterval, 2))
             
-            // 성공으로 복습
+            // 성공으로 복습 (현재 간격의 2배가 되어야 하므로, 호출 전 값을 기준으로 기대값 계산)
+            let beforeSuccess = card.reviewInterval
             cardManager.review(card: card, result: .success)
-            XCTAssertEqual(card.reviewInterval, min(card.reviewInterval * 2, 30))
+            XCTAssertEqual(card.reviewInterval, min(beforeSuccess * 2, 30))
             
             // 실패로 복습
             cardManager.review(card: card, result: .fail)

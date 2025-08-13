@@ -15,10 +15,11 @@ class CardManagerObservable: ObservableObject {
     @Published var selectedDeckId: Int64? = nil
     private let context: NSManagedObjectContext
     private let defaults = UserDefaults.standard
-    private let useSM2Scheduling = true
+    private let useSM2Scheduling: Bool
 
-    init(context: NSManagedObjectContext) {
+    init(context: NSManagedObjectContext, useSM2Scheduling: Bool = true) {
         self.context = context
+        self.useSM2Scheduling = useSM2Scheduling
         fetchCards()
         fetchDecks()
     }

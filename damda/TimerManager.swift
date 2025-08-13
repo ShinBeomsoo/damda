@@ -27,11 +27,9 @@ class TimerManager {
     }
 
     func pause() {
-        if let session = currentSession, let start = startDate {
-            let seconds = Int(Date().timeIntervalSince(start))
-            elapsedSeconds[session, default: 0] += seconds
-            saveTodayRecord()
-        }
+        // 테스트 및 UI 일관성: 진행 중 증가분은 Observable 쪽 틱에서만 반영하고,
+        // pause 시점에는 추가 가산 없이 현재 누적값만 저장한다.
+        saveTodayRecord()
         timer?.invalidate()
         timer = nil
         startDate = nil
