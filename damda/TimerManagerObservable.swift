@@ -44,6 +44,8 @@ class TimerManagerObservable: ObservableObject {
     }
 
     func pause() {
+        // 현재 UI상의 누적 시간을 매니저에 반영 후 저장/중지
+        manager.elapsedSeconds = self.elapsedSeconds
         manager.pause()
         syncFromManager()
         isRunning = false
@@ -106,6 +108,8 @@ class TimerManagerObservable: ObservableObject {
                 var next = self.elapsedSeconds
                 next[session, default: 0] += 1
                 self.elapsedSeconds = next
+                // 매니저와 즉시 동기화하여 저장 시 일관성 유지
+                self.manager.elapsedSeconds = next
             }
         }
         self.timer = newTimer
