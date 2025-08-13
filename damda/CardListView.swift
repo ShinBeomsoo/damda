@@ -28,19 +28,19 @@ struct CardListView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("암기 카드 관리")
+            Text(LocalizationManager.shared.localized("암기 카드 관리"))
                 .font(.headline)
             // 덱 선택(필터)
             HStack(spacing: 8) {
                 Menu {
-                    Button("모든 덱") { cardManager.selectedDeckId = nil }
+                    Button(LocalizationManager.shared.localized("모든 덱")) { cardManager.selectedDeckId = nil }
                     Divider()
                     ForEach(cardManager.decks, id: \.objectID) { deck in
                         let did = (deck.value(forKey: "id") as? NSNumber)?.int64Value ?? (deck.value(forKey: "id") as? Int64)
                         let isSelected = (cardManager.selectedDeckId == did)
                         Button(action: { if let did = did { cardManager.selectedDeckId = did } }) {
                             HStack {
-                                Text((deck.value(forKey: "name") as? String) ?? "이름 없음")
+                                Text((deck.value(forKey: "name") as? String) ?? LocalizationManager.shared.localized("이름 없음"))
                                 if isSelected { Image(systemName: "checkmark") }
                             }
                         }
@@ -51,7 +51,7 @@ struct CardListView: View {
                         let currentName = cardManager.selectedDeckId.flatMap { did in
                             cardManager.decks.first(where: { ((($0.value(forKey: "id") as? NSNumber)?.int64Value ?? ($0.value(forKey: "id") as? Int64)) == did) })?.value(forKey: "name") as? String
                         }
-                        Text(cardManager.selectedDeckId == nil ? "모든 덱" : (currentName ?? "덱"))
+                        Text(cardManager.selectedDeckId == nil ? LocalizationManager.shared.localized("모든 덱") : (currentName ?? LocalizationManager.shared.localized("덱")))
                     }
                 }
                 Spacer()
@@ -62,32 +62,32 @@ struct CardListView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
-                TextField("카드 검색...", text: $searchText)
+                TextField(LocalizationManager.shared.localized("카드 검색..."), text: $searchText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
             .padding(.bottom, 8)
             
             // 카드 추가: 덱 선택 전용
             HStack {
-                TextField("질문(앞면)", text: $question)
+                TextField(LocalizationManager.shared.localized("질문(앞면)"), text: $question)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                TextField("답변(뒷면)", text: $answer)
+                TextField(LocalizationManager.shared.localized("답변(뒷면)"), text: $answer)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 Menu {
-                    Button("미지정") { cardManager.selectedDeckId = nil }
+                    Button(LocalizationManager.shared.localized("미지정")) { cardManager.selectedDeckId = nil }
                     Divider()
                     ForEach(cardManager.decks, id: \.objectID) { deck in
                         let did = (deck.value(forKey: "id") as? NSNumber)?.int64Value ?? (deck.value(forKey: "id") as? Int64)
-                        let name = (deck.value(forKey: "name") as? String) ?? "이름 없음"
+                        let name = (deck.value(forKey: "name") as? String) ?? LocalizationManager.shared.localized("이름 없음")
                         Button(action: { if let did = did { cardManager.selectedDeckId = did } }) { Text(name) }
                     }
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "folder")
-                        Text(cardManager.selectedDeckId == nil ? "미지정" : (cardManager.decks.first { ((($0.value(forKey: "id") as? NSNumber)?.int64Value ?? ($0.value(forKey: "id") as? Int64)) == cardManager.selectedDeckId) }?.value(forKey: "name") as? String) ?? "덱")
+                        Text(cardManager.selectedDeckId == nil ? LocalizationManager.shared.localized("미지정") : (cardManager.decks.first { ((($0.value(forKey: "id") as? NSNumber)?.int64Value ?? ($0.value(forKey: "id") as? Int64)) == cardManager.selectedDeckId) }?.value(forKey: "name") as? String) ?? LocalizationManager.shared.localized("덱"))
                     }
                 }
-                Button("추가") {
+                Button(LocalizationManager.shared.localized("추가")) {
                     guard !question.isEmpty && !answer.isEmpty else { return }
                     cardManager.addCard(question: question, answer: answer, deckId: cardManager.selectedDeckId)
                     question = ""

@@ -6,11 +6,11 @@ struct TimerSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("학습 시간")
+                Text(LocalizationManager.shared.localized("학습 시간"))
                     .font(.headline)
                 Spacer()
                 Button(action: { timerManager.reset() }) {
-                    Text("리셋")
+                    Text(LocalizationManager.shared.localized("리셋"))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
@@ -58,7 +58,7 @@ struct TimerSessionCard: View {
                     timerManager.start(session: session)
                 }
             }) {
-                Text(timerManager.currentSession == session ? "일시정지" : "시작")
+                Text(timerManager.currentSession == session ? LocalizationManager.shared.localized("일시정지") : LocalizationManager.shared.localized("시작"))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -73,9 +73,9 @@ struct TimerSessionCard: View {
     
     private func sessionTitle(_ session: TimerSession) -> String {
         switch session {
-        case .morning: return "아침"
-        case .afternoon: return "오후"
-        case .evening: return "저녁"
+        case .morning: return LocalizationManager.shared.localized("아침")
+        case .afternoon: return LocalizationManager.shared.localized("오후")
+        case .evening: return LocalizationManager.shared.localized("저녁")
         }
     }
     
