@@ -44,6 +44,36 @@ rm -rf "$STAGING_DIR"/* || true
 cp -R "$APP_PATH" "$STAGING_DIR/"
 ln -sfn /Applications "$STAGING_DIR/Applications"
 
+# Add helper files for unsigned distribution
+cat > "$STAGING_DIR/README.txt" <<TXT
+damda 설치 안내
+
+1) damda.app을 Applications에 드래그해서 복사하세요.
+2) 처음 실행 시 보안 경고가 뜨면 아래 중 하나로 허용하세요.
+   - Finder에서 damda.app을 Control-클릭 → "열기" → 확인
+   - 또는 터미널에서:
+       xattr -dr com.apple.quarantine "/Applications/damda.app"
+3) 문제가 있으면 GitHub Releases의 checksums.txt로 무결성을 확인하세요.
+TXT
+
+cat > "$STAGING_DIR/Open Me First.command" <<'CMD'
+#!/bin/bash
+set -e
+APP="/Applications/damda.app"
+osascript -e 'tell application "Terminal" to activate'
+if [ -d "$APP" ]; then
+  echo "Removing quarantine attribute from $APP ..."
+  xattr -dr com.apple.quarantine "$APP" || true
+  echo "Done. Launching app..."
+  open -a "$APP"
+else
+  echo "Please drag damda.app into /Applications first, then re-run this."
+  open .
+fi
+read -n 1 -s -r -p "Press any key to close..."
+CMD
+chmod +x "$STAGING_DIR/Open Me First.command"
+
 # Create DMG (compressed UDZO)
 hdiutil create -volname "damda" -srcfolder "$STAGING_DIR" -ov -format UDZO "$OUT_BASE/$DMG_NAME" | cat
 
