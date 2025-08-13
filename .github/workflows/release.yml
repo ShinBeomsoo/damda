@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: macos-latest
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Derive stage/version from tag
+        id: meta
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}" # e.g., v1.0.1 or v1.0.1-rc.abcdef
+          VERSION_ALL="${TAG#v}"
+          if [[ "$VERSION_ALL" == *-rc.* ]]; then
+            STAGE=staging
+            VERSION_CORE="${VERSION_ALL%%-*}"   # 1.0.1
+            PRERELEASE=true
+          else
+            STAGE=prod
+            VERSION_CORE="$VERSION_ALL"        # 1.0.1
+            PRERELEASE=false
+          fi
+          echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
+          echo "version_core=$VERSION_CORE" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Build (Release, codesign disabled for CI)
+        run: |
+          xcodebuild \
+            -project damda.xcodeproj \
+            -scheme damda \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO | xcpretty || true
+
+      - name: Package DMG
+        env:
+          STAGE: ${{ steps.meta.outputs.stage }}
+          VERSION: ${{ steps.meta.outputs.version_core }}
+        run: |
+          chmod +x ./scripts/package_dmg.sh
+          ./scripts/package_dmg.sh
+
+      - name: Resolve artifact directory
+        id: paths
+        run: |
+          OUT_DIR="dist/${{ steps.meta.outputs.stage }}/latest"
+          echo "out_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+          echo "Listing $OUT_DIR:" && ls -lh "$OUT_DIR"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            ${{ steps.paths.outputs.out_dir }}/*.dmg
+            ${{ steps.paths.outputs.out_dir }}/checksums.txt
+            ${{ steps.paths.outputs.out_dir }}/manifest.json
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
