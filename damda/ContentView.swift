@@ -245,8 +245,30 @@ struct SidebarView: View {
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
             
-            // 하루 마감/자동 토글
-            VStack(spacing: 8) {
+            // 메뉴 아이템들
+            VStack(spacing: 4) {
+                ForEach(SidebarItem.allCases, id: \.self) { item in
+                    SidebarMenuItem(
+                        item: item,
+                        isSelected: selectedItem == item
+                    ) {
+                        selectedItem = item
+                    }
+                }
+            }
+            
+            Spacer()
+
+            Divider()
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("하루 마감")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 16)
+
                 HStack {
                     Image(systemName: "calendar.badge.clock")
                         .font(.system(size: 14))
@@ -280,22 +302,8 @@ struct SidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 12)
+                .padding(.bottom, 12)
             }
-            .padding(.bottom, 12)
-            
-            // 메뉴 아이템들
-            VStack(spacing: 4) {
-                ForEach(SidebarItem.allCases, id: \.self) { item in
-                    SidebarMenuItem(
-                        item: item,
-                        isSelected: selectedItem == item
-                    ) {
-                        selectedItem = item
-                    }
-                }
-            }
-            
-            Spacer()
         }
         .background(Color.gray.opacity(0.05))
     }
