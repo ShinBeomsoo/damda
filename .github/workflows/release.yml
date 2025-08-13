@@ -75,6 +75,16 @@ jobs:
           echo "out_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
           echo "Listing $OUT_DIR:" && ls -lh "$OUT_DIR"
 
+      - name: Decide make_latest flag
+        id: flags
+        shell: bash
+        run: |
+          if [[ "${{ steps.meta.outputs.prerelease }}" == "true" ]]; then
+            echo "make_latest=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -84,6 +94,7 @@ jobs:
             ${{ steps.paths.outputs.out_dir }}/checksums.txt
             ${{ steps.paths.outputs.out_dir }}/manifest.json
           prerelease: ${{ steps.meta.outputs.prerelease }}
+          make_latest: ${{ steps.flags.outputs.make_latest }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
