@@ -160,6 +160,10 @@ struct ContentView: View {
         let interval = nextMidnight.timeIntervalSince(now)
         let timer = Timer.scheduledTimer(withTimeInterval: max(1, interval), repeats: false) { _ in
             performEndOfDay(now: nextMidnight)
+            // 스냅샷 생성(어제 날짜 기준)
+            if let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Calendar.current.startOfDay(for: nextMidnight)) {
+                todoManager.saveSnapshotForDay(yesterday)
+            }
             scheduleMidnightTimerIfNeeded()
         }
         rolloverTimer = timer
@@ -776,29 +780,61 @@ struct DayDetailSidebarView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("\(selectedDate, formatter: dateFormatter) \(LocalizationManager.shared.localized("기록"))")
                         .font(.pretendard(18, weight: .semibold))
-                    
-                    let todos = todoManager.todos.filter { todo in
-                        if let completedAt = todo.completedAt {
-                            return Calendar.current.isDate(completedAt, inSameDayAs: selectedDate)
-                        }
-                        return false
-                    }
-                    
-                    if !todos.isEmpty {
-                        Text("\(LocalizationManager.shared.localized("할 일 완료")): \(todos.count)\(LocalizationManager.shared.localized("개"))")
-                        ForEach(todos, id: \.objectID) { todo in
-                            Text("- \(todo.text ?? "")")
-                                .font(.subheadline)
-                        }
-                    } else {
-                        Text("\(LocalizationManager.shared.localized("할 일 완료")): 0\(LocalizationManager.shared.localized("개"))")
-                    }
-                    
+
+                    let counts = todoManager.completedAndUncompletedCounts(on: selectedDate)
+                    let completedList = todoManager.completedTodos(on: selectedDate)
+                    let uncompletedList = todoManager.uncompletedTodos(on: selectedDate)
                     let seconds = timerManager.dailyTimeRecords(forDays: 30).first(where: { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) })?.seconds ?? 0
-                    Text("\(LocalizationManager.shared.localized("학습 시간")): \(seconds / 3600)\(LocalizationManager.shared.localized("시간")) \((seconds % 3600) / 60)\(LocalizationManager.shared.localized("분"))")
-                    
                     let streak = streakManager.currentStreak
-                    Text("\(LocalizationManager.shared.localized("연속 달성")): \(streak)\(LocalizationManager.shared.localized("일"))")
+
+                    // 1) 할 일 완료
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                            Text(LocalizationManager.shared.localized("할 일 완료"))
+                                .font(.subheadline).fontWeight(.semibold)
+                            Spacer()
+                            Text("\(counts.completed)\(LocalizationManager.shared.localized("개"))")
+                                .font(.subheadline).foregroundColor(.secondary)
+                        }
+                        ForEach(completedList, id: \.objectID) { todo in
+                            Text("- \(todo.text ?? "")").font(.subheadline)
+                        }
+                    }
+                    Divider().opacity(0.2)
+
+                    // 2) 할 일 미완료
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Image(systemName: "circle").foregroundColor(.orange)
+                            Text(LocalizationManager.shared.localized("할 일 미완료"))
+                                .font(.subheadline).fontWeight(.semibold)
+                            Spacer()
+                            Text("\(counts.uncompleted)\(LocalizationManager.shared.localized("개"))")
+                                .font(.subheadline).foregroundColor(.secondary)
+                        }
+                        ForEach(uncompletedList, id: \.objectID) { todo in
+                            Text("- \(todo.text ?? "")").font(.subheadline)
+                        }
+                    }
+                    Divider().opacity(0.2)
+
+                    // 3) 학습 시간
+                    HStack {
+                        Image(systemName: "clock.fill").foregroundColor(.blue)
+                        Text("\(LocalizationManager.shared.localized("학습 시간")): \(seconds / 3600)\(LocalizationManager.shared.localized("시간")) \((seconds % 3600) / 60)\(LocalizationManager.shared.localized("분"))")
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                    Divider().opacity(0.2)
+
+                    // 4) 연속 달성
+                    HStack {
+                        Image(systemName: "flame.fill").foregroundColor(.orange)
+                        Text("\(LocalizationManager.shared.localized("연속 달성")): \(streak)\(LocalizationManager.shared.localized("일"))")
+                            .font(.subheadline)
+                        Spacer()
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()

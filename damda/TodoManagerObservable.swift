@@ -48,6 +48,29 @@ class TodoManagerObservable: ObservableObject {
         fetchTodos()
     }
 
+    /// 자정 롤오버 시, 모든 할 일의 완료 상태를 초기화한다.
+    func resetAllTodosCompletionStatus() {
+        let fetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        if let items = try? context.fetch(fetch) {
+            for t in items {
+                t.isCompleted = false
+                t.completedAt = nil
+            }
+            try? context.save()
+            fetchTodos()
+        }
+    }
+
+    // MARK: - Snapshot (JSON-based)
+    func saveSnapshotForDay(_ day: Date) {
+        let completed = completedTodos(on: day).map { $0.text ?? "" }
+        let uncompleted = uncompletedTodos(on: day).map { $0.text ?? "" }
+        TodoSnapshotStore.shared.save(day: day, completed: completed, uncompleted: uncompleted)
+    }
+    func loadSnapshotForDay(_ day: Date) -> TodoDaySnapshot? {
+        TodoSnapshotStore.shared.load(day: day)
+    }
+
     func deleteTodo(todo: Todo) {
         context.delete(todo)
         try? context.save()
@@ -94,5 +117,64 @@ class TodoManagerObservable: ObservableObject {
 
     var completedCount: Int {
         todos.filter { $0.isCompleted }.count
+    }
+
+    /// 선택한 날짜 기준으로 (해당 날짜까지 존재하던) 할 일의 완료/미완료 개수를 반환한다.
+    /// - completed: completedAt이 그 날짜에 속한 항목 수
+    /// - uncompleted: 해당 날짜 끝 시점까지 존재(createdAt <= end)한 전체 수 - completed
+    func completedAndUncompletedCounts(on day: Date) -> (completed: Int, uncompleted: Int) {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: day)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+
+        // 해당 날짜까지 존재하던 모든 할 일
+        let allFetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        allFetch.predicate = NSPredicate(format: "createdAt <= %@", end as NSDate)
+        let allCount: Int = (try? context.count(for: allFetch)) ?? 0
+
+        // 해당 날짜에 완료된 할 일
+        let doneFetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        doneFetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "isCompleted == YES"),
+            NSPredicate(format: "completedAt >= %@ AND completedAt < %@", start as NSDate, end as NSDate)
+        ])
+        let completed: Int = (try? context.count(for: doneFetch)) ?? 0
+        let uncompleted = max(0, allCount - completed)
+        return (completed, uncompleted)
+    }
+
+    /// 선택한 날짜에 완료된 할 일 목록(완료 시각이 그 날짜에 속한 항목)
+    func completedTodos(on day: Date) -> [Todo] {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: day)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+        let fetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "isCompleted == YES"),
+            NSPredicate(format: "completedAt >= %@ AND completedAt < %@", start as NSDate, end as NSDate)
+        ])
+        fetch.sortDescriptors = [NSSortDescriptor(key: "completedAt", ascending: true)]
+        return (try? context.fetch(fetch)) ?? []
+    }
+
+    /// 선택한 날짜 기준 미완료로 간주되는 할 일 목록
+    /// (해당 날짜 종료 시점까지 존재했으나, 그 날짜 안에는 완료되지 않은 항목)
+    func uncompletedTodos(on day: Date) -> [Todo] {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: day)
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+        let fetch: NSFetchRequest<Todo> = Todo.fetchRequest()
+        fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "createdAt <= %@", end as NSDate),
+            NSCompoundPredicate(orPredicateWithSubpredicates: [
+                NSPredicate(format: "isCompleted == NO"),
+                NSPredicate(format: "completedAt >= %@", end as NSDate)
+            ])
+        ])
+        fetch.sortDescriptors = [
+            NSSortDescriptor(key: "priority", ascending: false),
+            NSSortDescriptor(key: "createdAt", ascending: true)
+        ]
+        return (try? context.fetch(fetch)) ?? []
     }
 }

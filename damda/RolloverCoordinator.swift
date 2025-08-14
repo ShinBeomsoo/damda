@@ -28,6 +28,7 @@ enum RolloverCoordinator {
 
         // 3) 오늘 상태 초기화
         timerManager.reset()
+        todoManager.resetAllTodosCompletionStatus()
     }
 
     private static func saveTimerRecord(for day: Date, timerManager: TimerManagerObservable, context: NSManagedObjectContext?) {

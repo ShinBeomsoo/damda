@@ -22,6 +22,7 @@ final class LocalizationManager {
             ("분", "m"),
             ("기록", "Record"),
             ("할 일 완료", "Completed Todos"),
+            ("할 일 미완료", "Uncompleted Todos"),
             // MainView labels
             ("공부 시간", "Study Time"),
             ("연속 달성", "Streak"),
