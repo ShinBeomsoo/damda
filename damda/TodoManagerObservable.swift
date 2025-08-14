@@ -119,6 +119,17 @@ class TodoManagerObservable: ObservableObject {
         todos.filter { $0.isCompleted }.count
     }
 
+    /// 오늘 완료된 할 일 개수 (오늘 목표 판단/표시에 사용)
+    var todayCompletedCount: Int {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: Date())
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+        return todos.filter { t in
+            guard t.isCompleted, let done = t.completedAt else { return false }
+            return done >= start && done < end
+        }.count
+    }
+
     /// 선택한 날짜 기준으로 (해당 날짜까지 존재하던) 할 일의 완료/미완료 개수를 반환한다.
     /// - completed: completedAt이 그 날짜에 속한 항목 수
     /// - uncompleted: 해당 날짜 끝 시점까지 존재(createdAt <= end)한 전체 수 - completed

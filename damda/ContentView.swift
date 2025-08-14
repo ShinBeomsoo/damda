@@ -457,17 +457,17 @@ struct GoalSummaryView: View {
             // 할 일 목표 ProgressBar
             VStack(spacing: 4) {
                 HStack {
-                    Text("\(LocalizationManager.shared.localized("할 일")): \(todoManager.completedCount) / \(goalTodos)")
+                    Text("\(LocalizationManager.shared.localized("할 일")): \(todoManager.todayCompletedCount) / \(goalTodos)")
                         .font(.subheadline)
                     Spacer()
-                    Text("\(Int(Double(todoManager.completedCount) / Double(goalTodos) * 100))%")
+                    Text("\(Int(Double(todoManager.todayCompletedCount) / Double(goalTodos) * 100))%")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(todoManager.completedCount >= goalTodos ? .green : .primary)
+                        .foregroundColor(todoManager.todayCompletedCount >= goalTodos ? .green : .primary)
                 }
                 AnimatedProgressBar(
-                    value: min(Double(todoManager.completedCount) / Double(goalTodos), 1.0),
-                    isCompleted: todoManager.completedCount >= goalTodos
+                    value: min(Double(todoManager.todayCompletedCount) / Double(goalTodos), 1.0),
+                    isCompleted: todoManager.todayCompletedCount >= goalTodos
                 )
             }
             
