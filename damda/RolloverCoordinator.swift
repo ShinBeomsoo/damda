@@ -26,9 +26,9 @@ enum RolloverCoordinator {
         // streakManager는 내부적으로 최신 기록을 재계산하므로, 어제 기록을 저장하려면 직접 엔티티 삽입 대신 API 사용
         streakManager.markToday(success: success)
 
-        // 3) 오늘 상태 초기화
+        // 3) 오늘 상태 초기화(타이머만 리셋). Todo 완료 상태는 유지하여
+        //    '어제 완료 항목'이 오늘 리스트에 재등장하지 않도록 한다.
         timerManager.reset()
-        todoManager.resetAllTodosCompletionStatus()
     }
 
     private static func saveTimerRecord(for day: Date, timerManager: TimerManagerObservable, context: NSManagedObjectContext?) {

@@ -15,7 +15,18 @@ struct TodoListView: View {
     @State private var renderTrigger = false
 
     var sortedTodos: [Todo] {
-        let todos: [Todo] = todoManager.todos
+        // 오늘 기준 표시 정책:
+        // - 미완료
+        // - 혹은 '오늘 완료된' 항목만 포함
+        let cal = Calendar.current
+        let todayStart = cal.startOfDay(for: Date())
+        let todayEnd = cal.date(byAdding: .day, value: 1, to: todayStart) ?? todayStart
+
+        let todos: [Todo] = todoManager.todos.filter { t in
+            if t.isCompleted == false { return true }
+            if let done = t.completedAt { return (done >= todayStart && done < todayEnd) }
+            return false
+        }
         let sorted: [Todo] = todos.sorted { (a: Todo, b: Todo) -> Bool in
             a.priority > b.priority
         }
