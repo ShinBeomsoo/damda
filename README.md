@@ -4,7 +4,6 @@
 
 ![screenshot](docs/main.png)
 
----
 
 ## 설치 방법
 
@@ -23,7 +22,6 @@ open damda.xcodeproj
 xcodebuild -project damda.xcodeproj -scheme damda -configuration Release build
 ```
 
----
 
 ## 빠른 시작
 1. 사이드바에서 언어(한국어/English) 선택 — 즉시 UI 반영
@@ -32,7 +30,6 @@ xcodebuild -project damda.xcodeproj -scheme damda -configuration Release build
 4. 목표 진행률 확인(공부 시간/할 일)
 5. Deck 생성 → 카드 추가 → 오늘 복습 시작(SM-2 기반 미리보기/툴팁)
 
----
 
 ## 환경 분리(Prod/Dev)
 
@@ -40,7 +37,6 @@ xcodebuild -project damda.xcodeproj -scheme damda -configuration Release build
 - Core Data 모델은 경량 마이그레이션 옵션 활성화
 - 실행 방법: Xcode 우측 상단 Scheme에서 선택 후 실행
 
----
 
 ## 데이터 관리
 - 저장소: Core Data (엔티티: Todo, TimerRecord, StreakRecord, Card, Deck)
@@ -49,7 +45,6 @@ xcodebuild -project damda.xcodeproj -scheme damda -configuration Release build
 - 상태 저장: UserDefaults로 일부 앱 설정·타이머/카드 상태 보존
 - 모델 경로: `damda/Model/damda.xcdatamodeld` (경량 마이그레이션 사용)
 
----
 
 ## 완성도 및 로드맵
 - 현재
@@ -62,7 +57,6 @@ xcodebuild -project damda.xcodeproj -scheme damda -configuration Release build
   - 카드/덱 통계 심화, 하루 복습 한도 등 옵션
   - 마이크로 인터랙션·전환/호버/스켈레톤 강화
 
----
 
 ## 기술 스택
 - Swift 5, SwiftUI
