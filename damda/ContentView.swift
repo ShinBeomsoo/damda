@@ -42,8 +42,10 @@ struct ContentView: View {
     @AppStorage("lastRolloverDay", store: UserDefaults.environmentSpecific) private var lastRolloverDay: Double = 0
     @State private var rolloverTimer: Timer?
     
-    let goalSeconds = 6 * 60 * 60 // 6시간
-    let goalTodos = 5
+    @AppStorage("goalStudyHours") private var goalStudyHours: Int = 6
+    @AppStorage("goalStudyMinutes") private var goalStudyMinutes: Int = 0
+    @AppStorage("goalTodos") private var goalTodos: Int = 5
+    var goalSeconds: Int { (goalStudyHours * 3600) + (goalStudyMinutes * 60) }
     
     var body: some View {
         HStack(spacing: 0) {
@@ -381,20 +383,64 @@ struct GoalSummaryView: View {
     @ObservedObject var todoManager: TodoManagerObservable
     @ObservedObject var streakManager: StreakManagerObservable
 
-    let goalSeconds = 6 * 60 * 60 // 6시간
-    let goalTodos = 5
+    @AppStorage("goalStudyHours") private var goalStudyHours: Int = 6
+    @AppStorage("goalStudyMinutes") private var goalStudyMinutes: Int = 0
+    @AppStorage("goalTodos") private var goalTodos: Int = 5
+    private var goalSeconds: Int { (goalStudyHours * 3600) + (goalStudyMinutes * 60) }
     
     @State private var animateProgress = false
+    @State private var showGoalsPopover = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(LocalizationManager.shared.localized("오늘의 목표"))
-                .font(.title2).bold()
+            HStack {
+                Text(LocalizationManager.shared.localized("오늘의 목표"))
+                    .font(.title2).bold()
+                Spacer()
+                Button(action: { showGoalsPopover.toggle() }) {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $showGoalsPopover, arrowEdge: .top) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(LocalizationManager.shared.localized("목표 설정")).font(.headline)
+                        HStack(spacing: 8) {
+                            Text(LocalizationManager.shared.localized("공부 시간 목표")).font(.subheadline)
+                            Spacer()
+                            Stepper("\(goalStudyHours)\(LocalizationManager.shared.localized("시"))", value: $goalStudyHours, in: 0...24)
+                                .frame(width: 140)
+                            Stepper("\(goalStudyMinutes)\(LocalizationManager.shared.localized("분"))", value: $goalStudyMinutes, in: 0...59, step: 5)
+                                .frame(width: 140)
+                        }
+                        HStack(spacing: 8) {
+                            Text(LocalizationManager.shared.localized("할 일 목표")).font(.subheadline)
+                            Spacer()
+                            Stepper("\(goalTodos)", value: $goalTodos, in: 0...20)
+                                .frame(width: 120)
+                        }
+                        HStack(spacing: 8) {
+                            Text(LocalizationManager.shared.localized("프리셋")).font(.subheadline)
+                            Spacer()
+                            Button(LocalizationManager.shared.localized("4시간")) { goalStudyHours = 4; goalStudyMinutes = 0 }
+                            Button(LocalizationManager.shared.localized("6시간")) { goalStudyHours = 6; goalStudyMinutes = 0 }
+                            Button(LocalizationManager.shared.localized("8시간")) { goalStudyHours = 8; goalStudyMinutes = 0 }
+                        }
+                        HStack {
+                            Spacer()
+                            Button(LocalizationManager.shared.localized("기본값으로")) {
+                                goalStudyHours = 6; goalStudyMinutes = 0; goalTodos = 5
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .frame(width: 380)
+                }
+            }
             
             // 공부 시간 목표 ProgressBar
             VStack(spacing: 4) {
                 HStack {
-                    Text("\(LocalizationManager.shared.localized("공부 시간")): \(formatTime(timerManager.totalSeconds)) / 06:00:00")
+                    Text("\(LocalizationManager.shared.localized("공부 시간")): \(formatTime(timerManager.totalSeconds)) / \(String(format: "%02d:%02d:00", goalStudyHours, goalStudyMinutes))")
                         .font(.subheadline)
                     Spacer()
                     Text("\(Int(Double(timerManager.totalSeconds) / Double(goalSeconds) * 100))%")

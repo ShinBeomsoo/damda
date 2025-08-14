@@ -42,6 +42,17 @@ final class LocalizationManager {
             ("할 일을 입력하세요", "Enter your todo"),
             ("오늘의 할 일", "Today's Todos"),
             ("암기카드 관리", "Flashcard Management"),
+            // Goals edit UI
+            ("목표 설정", "Edit Goals"),
+            ("공부 시간 목표", "Study Time Goal"),
+            ("할 일 목표", "Todo Goal"),
+            ("시", "h"),
+            ("분", "m"),
+            ("프리셋", "Presets"),
+            ("기본값으로", "Reset to default"),
+            ("4시간", "4h"),
+            ("6시간", "6h"),
+            ("8시간", "8h"),
             // Common/Sidebar
             ("학습 관리 앱", "Study Management App"),
             ("다크모드", "Dark Mode"),
