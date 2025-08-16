@@ -24,7 +24,7 @@ struct NotificationSettingsView: View {
                 VStack(spacing: 8) {
                     VStack(spacing: 8) {
                         Button(action: {
-                            notificationManager.requestNotificationPermission()
+                            openSystemPreferences()
                         }) {
                             Text(LocalizationManager.shared.localized("알림 권한 요청"))
                                 .font(.caption)
@@ -33,16 +33,6 @@ struct NotificationSettingsView: View {
                                 .padding(.vertical, 6)
                                 .background(Color.blue)
                                 .cornerRadius(6)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        Button(action: {
-                            openSystemPreferences()
-                        }) {
-                            Text("시스템 환경설정 열기")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                                .underline()
                         }
                         .buttonStyle(PlainButtonStyle())
                         
