@@ -77,12 +77,12 @@ struct NotificationSettingsView: View {
             
             // 알림 목록
             VStack(alignment: .leading, spacing: 8) {
-                Text("알림 목록")
+                Text(LocalizationManager.shared.localized("알림 목록"))
                     .font(.subheadline)
                     .fontWeight(.medium)
                 
                 if scheduledNotifications.isEmpty {
-                    Text("설정된 알림이 없습니다.")
+                    Text(LocalizationManager.shared.localized("설정된 알림이 없습니다."))
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding()
@@ -129,10 +129,10 @@ struct NotificationSettingsView: View {
         .onAppear {
             loadScheduledNotifications()
         }
-        .alert("알림 설정 완료", isPresented: $showCustomNotificationSuccess) {
-            Button("확인") { }
+        .alert(LocalizationManager.shared.localized("알림 설정 완료"), isPresented: $showCustomNotificationSuccess) {
+            Button(LocalizationManager.shared.localized("확인")) { }
         } message: {
-            Text("사용자 정의 알림이 설정되었습니다.")
+            Text(LocalizationManager.shared.localized("사용자 정의 알림이 설정되었습니다."))
         }
 
     }
