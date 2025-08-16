@@ -4,6 +4,8 @@ struct NotificationSettingsView: View {
     @ObservedObject private var notificationManager = NotificationManager.shared
     @State private var customTime: Date = Calendar.current.date(from: DateComponents(hour: 12, minute: 0)) ?? Date()
     @State private var showCustomNotificationSuccess = false
+    @State private var scheduledNotifications: [NotificationInfo] = []
+    @State private var showNotificationList = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -95,7 +97,8 @@ struct NotificationSettingsView: View {
                     .disabled(!notificationManager.isNotificationsEnabled)
                     
                     Button(action: {
-                        notificationManager.listScheduledNotifications()
+                        loadScheduledNotifications()
+                        showNotificationList = true
                     }) {
                         Text("알림 목록")
                             .font(.caption)
@@ -118,10 +121,93 @@ struct NotificationSettingsView: View {
         } message: {
             Text("사용자 정의 알림이 설정되었습니다.")
         }
+        .sheet(isPresented: $showNotificationList) {
+            NotificationListView(
+                notifications: scheduledNotifications,
+                onDelete: { identifier in
+                    notificationManager.removeNotification(withIdentifier: identifier)
+                    loadScheduledNotifications()
+                }
+            )
+        }
     }
     
     private func openSystemPreferences() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!
         NSWorkspace.shared.open(url)
+    }
+    
+    private func loadScheduledNotifications() {
+        notificationManager.listScheduledNotifications { notifications in
+            self.scheduledNotifications = notifications
+        }
+    }
+}
+
+struct NotificationListView: View {
+    let notifications: [NotificationInfo]
+    let onDelete: (String) -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("알림 목록")
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            if notifications.isEmpty {
+                Text("설정된 알림이 없습니다.")
+                    .foregroundColor(.secondary)
+                    .padding()
+            } else {
+                List {
+                    ForEach(notifications) { notification in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(notification.displayTitle)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                
+                                Text(notification.body)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                onDelete(notification.identifier)
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .frame(height: 300)
+            }
+            
+            HStack {
+                Button("닫기") {
+                    // sheet를 닫기 위해 외부에서 처리
+                }
+                .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+                
+                Spacer()
+                
+                Text("총 \(notifications.count)개의 알림")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .frame(width: 400, height: 450)
     }
 }

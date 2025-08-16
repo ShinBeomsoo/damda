@@ -1,6 +1,28 @@
 import UserNotifications
 import Foundation
 
+struct NotificationInfo: Identifiable {
+    let id = UUID()
+    let identifier: String
+    let title: String
+    let body: String
+    let hour: Int
+    let minute: Int
+    let isDefault: Bool
+    
+    var timeString: String {
+        return String(format: "%02d:%02d", hour, minute)
+    }
+    
+    var displayTitle: String {
+        if isDefault {
+            return "기본 알림 - \(timeString)"
+        } else {
+            return "사용자 정의 - \(timeString)"
+        }
+    }
+}
+
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     
@@ -153,18 +175,43 @@ class NotificationManager: ObservableObject {
         print("🔔 모든 알림 제거됨")
     }
     
-    func listScheduledNotifications() {
+    func removeNotification(withIdentifier identifier: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+        print("🔔 알림 제거됨: \(identifier)")
+    }
+    
+    func listScheduledNotifications(completion: @escaping ([NotificationInfo]) -> Void) {
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
             DispatchQueue.main.async {
-                print("🔔 현재 스케줄된 알림 개수: \(requests.count)")
+                var notificationInfos: [NotificationInfo] = []
+                
                 for request in requests {
                     if let trigger = request.trigger as? UNCalendarNotificationTrigger {
                         let dateComponents = trigger.dateComponents
-                        print("  - \(request.identifier): \(dateComponents.hour ?? 0):\(dateComponents.minute ?? 0)")
-                    } else {
-                        print("  - \(request.identifier): 알 수 없는 트리거")
+                        let hour = dateComponents.hour ?? 0
+                        let minute = dateComponents.minute ?? 0
+                        
+                        let info = NotificationInfo(
+                            identifier: request.identifier,
+                            title: request.content.title,
+                            body: request.content.body,
+                            hour: hour,
+                            minute: minute,
+                            isDefault: request.identifier == "lunch-review" || request.identifier == "dinner-review"
+                        )
+                        notificationInfos.append(info)
                     }
                 }
+                
+                // 시간순으로 정렬
+                notificationInfos.sort { first, second in
+                    if first.hour != second.hour {
+                        return first.hour < second.hour
+                    }
+                    return first.minute < second.minute
+                }
+                
+                completion(notificationInfos)
             }
         }
     }
