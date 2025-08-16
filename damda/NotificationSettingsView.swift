@@ -22,23 +22,35 @@ struct NotificationSettingsView: View {
             
             if !notificationManager.isNotificationsEnabled {
                 VStack(spacing: 8) {
-                    Button(action: {
-                        notificationManager.requestNotificationPermission()
-                    }) {
-                        Text(LocalizationManager.shared.localized("알림 권한 요청"))
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.blue)
-                            .cornerRadius(6)
+                    VStack(spacing: 8) {
+                        Button(action: {
+                            notificationManager.requestNotificationPermission()
+                        }) {
+                            Text(LocalizationManager.shared.localized("알림 권한 요청"))
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.blue)
+                                .cornerRadius(6)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: {
+                            openSystemPreferences()
+                        }) {
+                            Text("시스템 환경설정 열기")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                                .underline()
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Text("macOS 시스템 환경설정 > 알림 및 포커스에서 damda 앱의 알림을 허용해주세요.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Text("macOS 시스템 환경설정 > 알림 및 포커스에서 damda 앱의 알림을 허용해주세요.")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
                 }
             }
             
@@ -101,5 +113,10 @@ struct NotificationSettingsView: View {
         } message: {
             Text("사용자 정의 알림이 설정되었습니다.")
         }
+    }
+    
+    private func openSystemPreferences() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!
+        NSWorkspace.shared.open(url)
     }
 }

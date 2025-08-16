@@ -28,6 +28,47 @@ class NotificationManager: ObservableObject {
     
     func requestNotificationPermission() {
         print("🔔 알림 권한 요청 시작")
+        
+        // 현재 권한 상태 먼저 확인
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                print("🔔 현재 알림 권한 상태: \(settings.authorizationStatus.rawValue)")
+                
+                switch settings.authorizationStatus {
+                case .notDetermined:
+                    // 권한이 결정되지 않은 경우에만 요청
+                    self.requestAuthorization()
+                case .denied:
+                    // 권한이 거부된 경우 시스템 환경설정 안내
+                    print("🔔 알림 권한이 거부됨 - 시스템 환경설정에서 수동으로 허용 필요")
+                    self.isNotificationsEnabled = false
+                case .authorized:
+                    // 이미 권한이 허용된 경우
+                    print("🔔 이미 알림 권한이 허용됨")
+                    self.isNotificationsEnabled = true
+                    self.scheduleDefaultNotifications()
+                case .provisional:
+                    // 임시 권한
+                    print("🔔 임시 알림 권한")
+                    self.isNotificationsEnabled = true
+                    self.scheduleDefaultNotifications()
+                case .ephemeral:
+                    // 일시적 권한
+                    print("🔔 일시적 알림 권한")
+                    self.isNotificationsEnabled = true
+                    self.scheduleDefaultNotifications()
+                @unknown default:
+                    print("🔔 알 수 없는 권한 상태")
+                    self.isNotificationsEnabled = false
+                }
+                
+                // 상태 업데이트를 위해 objectWillChange 전송
+                self.objectWillChange.send()
+            }
+        }
+    }
+    
+    private func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 print("🔔 알림 권한 요청 결과: \(granted), 오류: \(error?.localizedDescription ?? "없음")")
