@@ -63,7 +63,10 @@ struct ContentView: View {
                 timerManager: timerManager,
                 todoManager: todoManager,
                 streakManager: streakManager,
-                selectedItem: selectedSidebarItem
+                selectedItem: selectedSidebarItem,
+                isDarkMode: $isDarkMode,
+                autoEndOfDayEnabled: $autoEndOfDayEnabled,
+                onRequestEndOfDay: { showConfirmEndOfDay = true }
             )
             .frame(minWidth: 600, maxWidth: .infinity)
             Divider()
@@ -184,6 +187,7 @@ enum SidebarItem: String, CaseIterable {
     case todos = "todos"
     case flashcards = "flashcards"
     case deckManagement = "deckManagement"
+    case settings = "settings"
     
     var title: String {
         switch self {
@@ -192,6 +196,7 @@ enum SidebarItem: String, CaseIterable {
         case .todos: return LocalizationManager.shared.localized("할 일")
         case .flashcards: return LocalizationManager.shared.localized("암기카드")
         case .deckManagement: return LocalizationManager.shared.localized("덱 관리")
+        case .settings: return LocalizationManager.shared.localized("설정")
         }
     }
     
@@ -202,6 +207,7 @@ enum SidebarItem: String, CaseIterable {
         case .todos: return "checklist"
         case .flashcards: return "rectangle.on.rectangle"
         case .deckManagement: return "folder"
+        case .settings: return "gearshape.fill"
         }
     }
 }
@@ -211,8 +217,6 @@ struct SidebarView: View {
     @Binding var isDarkMode: Bool
     @Binding var autoEndOfDayEnabled: Bool
     let onRequestEndOfDay: () -> Void
-    @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
-    @State private var showNotificationSettings = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -274,100 +278,6 @@ struct SidebarView: View {
             }
             
             Spacer()
-
-            Divider()
-                .padding(.horizontal, 12)
-                .padding(.bottom, 10)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                // Language picker (instant apply)
-                HStack(spacing: 8) {
-                    Image(systemName: "globe")
-                        .font(.system(size: 14))
-                        .foregroundColor(.blue)
-                    Text(LocalizationManager.shared.localized("언어"))
-                        .font(.system(size: 12, weight: .medium))
-                    Spacer()
-                    Picker("", selection: $appLanguageCode) {
-                        Text(LocalizationManager.shared.localized("한국어")).tag("ko")
-                        Text(LocalizationManager.shared.localized("English")).tag("en")
-                    }
-                    .frame(width: 120)
-                    .pickerStyle(.menu)
-                    .onChange(of: appLanguageCode) { _, newValue in
-                        UserDefaults.standard.set(newValue, forKey: "appLanguageCode")
-                        // 즉시 리렌더 유도
-                        selectedItem = selectedItem
-                    }
-                }
-                
-                // 알림 설정
-                HStack(spacing: 8) {
-                    Image(systemName: "bell.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.orange)
-                    Text(LocalizationManager.shared.localized("알림"))
-                        .font(.system(size: 12, weight: .medium))
-                    Spacer()
-                    Button(action: {
-                        showNotificationSettings.toggle()
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .popover(isPresented: $showNotificationSettings) {
-                        NotificationSettingsView()
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.05))
-                )
-                .frame(height: 28)
-                Text(LocalizationManager.shared.localized("하루 마감"))
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 16)
-
-                HStack {
-                    Image(systemName: "calendar.badge.clock")
-                        .font(.system(size: 14))
-                        .foregroundColor(.blue)
-                    Text(LocalizationManager.shared.localized("자동 하루 마감"))
-                        .font(.system(size: 12, weight: .medium))
-                    Spacer()
-                    Toggle("", isOn: $autoEndOfDayEnabled)
-                        .toggleStyle(SwitchToggleStyle())
-                        .labelsHidden()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.05))
-                )
-                
-                Button(action: onRequestEndOfDay) {
-                    HStack {
-                        Image(systemName: "tray.and.arrow.down.fill")
-                        Text(LocalizationManager.shared.localized("하루 마감"))
-                            .font(.system(size: 12, weight: .semibold))
-                        Spacer()
-                    }
-                    .padding(10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(hex: "E06552").opacity(0.12))
-                    )
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
-            }
         }
         .background(Color.gray.opacity(0.05))
     }
@@ -632,6 +542,9 @@ struct MainView: View {
     @ObservedObject var todoManager: TodoManagerObservable
     @ObservedObject var streakManager: StreakManagerObservable
     let selectedItem: SidebarItem
+    @Binding var isDarkMode: Bool
+    @Binding var autoEndOfDayEnabled: Bool
+    let onRequestEndOfDay: () -> Void
     
     var body: some View {
         ScrollView {
@@ -655,6 +568,12 @@ struct MainView: View {
                     FlashcardsView(cardManager: cardManager)
                 case .deckManagement:
                     DeckManagementView(cardManager: cardManager)
+                case .settings:
+                    SettingsView(
+                        isDarkMode: $isDarkMode,
+                        autoEndOfDayEnabled: $autoEndOfDayEnabled,
+                        onRequestEndOfDay: onRequestEndOfDay
+                    )
                 }
             }
             .padding()
