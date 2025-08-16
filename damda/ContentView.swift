@@ -41,6 +41,7 @@ struct ContentView: View {
     @AppStorage("autoEndOfDayEnabled", store: UserDefaults.environmentSpecific) private var autoEndOfDayEnabled = true
     @AppStorage("lastRolloverDay", store: UserDefaults.environmentSpecific) private var lastRolloverDay: Double = 0
     @State private var rolloverTimer: Timer?
+    @State private var shouldShowReview = false
     
     @AppStorage("goalStudyHours") private var goalStudyHours: Int = 6
     @AppStorage("goalStudyMinutes") private var goalStudyMinutes: Int = 0
@@ -97,6 +98,10 @@ struct ContentView: View {
         }
         .onAppear {
             handleActivation()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showReviewScreen)) { _ in
+            shouldShowReview = true
+            selectedSidebarItem = .flashcards
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -207,6 +212,7 @@ struct SidebarView: View {
     @Binding var autoEndOfDayEnabled: Bool
     let onRequestEndOfDay: () -> Void
     @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
+    @State private var showNotificationSettings = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -292,6 +298,27 @@ struct SidebarView: View {
                         UserDefaults.standard.set(newValue, forKey: "appLanguageCode")
                         // 즉시 리렌더 유도
                         selectedItem = selectedItem
+                    }
+                }
+                
+                // 알림 설정
+                HStack(spacing: 8) {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.orange)
+                    Text(LocalizationManager.shared.localized("알림"))
+                        .font(.system(size: 12, weight: .medium))
+                    Spacer()
+                    Button(action: {
+                        showNotificationSettings.toggle()
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .popover(isPresented: $showNotificationSettings) {
+                        NotificationSettingsView()
                     }
                 }
                 .padding(.horizontal, 16)

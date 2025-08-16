@@ -1,0 +1,91 @@
+import SwiftUI
+
+struct NotificationSettingsView: View {
+    @ObservedObject private var notificationManager = NotificationManager.shared
+    @State private var customTime: Date = Calendar.current.date(from: DateComponents(hour: 12, minute: 0)) ?? Date()
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(LocalizationManager.shared.localized("알림 설정"))
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            // 알림 권한 상태
+            HStack {
+                Image(systemName: notificationManager.isNotificationsEnabled ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundColor(notificationManager.isNotificationsEnabled ? .green : .red)
+                Text(notificationManager.isNotificationsEnabled ? LocalizationManager.shared.localized("알림 활성화됨") : LocalizationManager.shared.localized("알림 비활성화됨"))
+                    .font(.caption)
+                Spacer()
+            }
+            
+            if !notificationManager.isNotificationsEnabled {
+                Button(action: {
+                    notificationManager.requestNotificationPermission()
+                }) {
+                    Text(LocalizationManager.shared.localized("알림 권한 요청"))
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue)
+                        .cornerRadius(6)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            
+            Divider()
+            
+            // 기본 알림 시간
+            VStack(alignment: .leading, spacing: 8) {
+                Text(LocalizationManager.shared.localized("기본 알림 시간"))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                HStack {
+                    Text("12:00")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("18:00")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Text(LocalizationManager.shared.localized("점심과 저녁에 복습 알림이 발송됩니다"))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            Divider()
+            
+            // 사용자 정의 알림 시간
+            VStack(alignment: .leading, spacing: 8) {
+                Text(LocalizationManager.shared.localized("사용자 정의 알림 시간"))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                
+                DatePicker("", selection: $customTime, displayedComponents: .hourAndMinute)
+                    .labelsHidden()
+                
+                Button(action: {
+                    notificationManager.scheduleCustomNotification(at: customTime)
+                }) {
+                    Text(LocalizationManager.shared.localized("추가 알림 설정"))
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.orange)
+                        .cornerRadius(6)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .disabled(!notificationManager.isNotificationsEnabled)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .frame(width: 300, height: 400)
+    }
+}
