@@ -3,6 +3,7 @@ import SwiftUI
 struct NotificationSettingsView: View {
     @ObservedObject private var notificationManager = NotificationManager.shared
     @State private var customTime: Date = Calendar.current.date(from: DateComponents(hour: 12, minute: 0)) ?? Date()
+    @State private var showCustomNotificationSuccess = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -20,18 +21,25 @@ struct NotificationSettingsView: View {
             }
             
             if !notificationManager.isNotificationsEnabled {
-                Button(action: {
-                    notificationManager.requestNotificationPermission()
-                }) {
-                    Text(LocalizationManager.shared.localized("알림 권한 요청"))
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.blue)
-                        .cornerRadius(6)
+                VStack(spacing: 8) {
+                    Button(action: {
+                        notificationManager.requestNotificationPermission()
+                    }) {
+                        Text(LocalizationManager.shared.localized("알림 권한 요청"))
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.blue)
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Text("macOS 시스템 환경설정 > 알림 및 포커스에서 damda 앱의 알림을 허용해주세요.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
-                .buttonStyle(PlainButtonStyle())
             }
             
             Divider()
@@ -70,6 +78,7 @@ struct NotificationSettingsView: View {
                 
                 Button(action: {
                     notificationManager.scheduleCustomNotification(at: customTime)
+                    showCustomNotificationSuccess = true
                 }) {
                     Text(LocalizationManager.shared.localized("추가 알림 설정"))
                         .font(.caption)
@@ -87,5 +96,10 @@ struct NotificationSettingsView: View {
         }
         .padding()
         .frame(width: 300, height: 400)
+        .alert("알림 설정 완료", isPresented: $showCustomNotificationSuccess) {
+            Button("확인") { }
+        } message: {
+            Text("사용자 정의 알림이 설정되었습니다.")
+        }
     }
 }

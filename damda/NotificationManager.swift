@@ -14,18 +14,29 @@ class NotificationManager: ObservableObject {
     func checkNotificationPermission() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
+                let wasEnabled = self.isNotificationsEnabled
                 self.isNotificationsEnabled = settings.authorizationStatus == .authorized
+                print("🔔 알림 권한 상태 확인: \(settings.authorizationStatus.rawValue) -> \(self.isNotificationsEnabled)")
+                
+                // 상태가 변경되었다면 UI 업데이트를 위해 objectWillChange 전송
+                if wasEnabled != self.isNotificationsEnabled {
+                    self.objectWillChange.send()
+                }
             }
         }
     }
     
     func requestNotificationPermission() {
+        print("🔔 알림 권한 요청 시작")
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
+                print("🔔 알림 권한 요청 결과: \(granted), 오류: \(error?.localizedDescription ?? "없음")")
                 self.isNotificationsEnabled = granted
                 if granted {
                     self.scheduleDefaultNotifications()
                 }
+                // 권한 요청 후 상태 다시 확인
+                self.checkNotificationPermission()
             }
         }
     }
