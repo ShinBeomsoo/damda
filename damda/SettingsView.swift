@@ -6,6 +6,7 @@ struct SettingsView: View {
     let onRequestEndOfDay: () -> Void
     @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
     @State private var showNotificationSettings = false
+    @State private var showGoalSettings = false
     
     var body: some View {
         ScrollView {
@@ -153,7 +154,9 @@ struct SettingsView: View {
                             title: LocalizationManager.shared.localized("학습 시간 목표"),
                             subtitle: LocalizationManager.shared.localized("하루 학습 시간 목표를 설정하세요")
                         ) {
-                            NavigationLink(destination: GoalSettingsView()) {
+                            Button(action: {
+                                showGoalSettings.toggle()
+                            }) {
                                 Text(LocalizationManager.shared.localized("설정"))
                                     .font(.caption)
                                     .foregroundColor(.blue)
@@ -171,6 +174,9 @@ struct SettingsView: View {
         }
         .popover(isPresented: $showNotificationSettings) {
             NotificationSettingsView()
+        }
+        .sheet(isPresented: $showGoalSettings) {
+            GoalSettingsView()
         }
     }
 }
@@ -254,17 +260,113 @@ struct SettingsRow<Content: View>: View {
     }
 }
 
-// 목표 설정 뷰 (플레이스홀더)
+// 목표 설정 뷰
 struct GoalSettingsView: View {
+    @AppStorage("goalStudyHours") private var goalStudyHours: Int = 6
+    @AppStorage("goalStudyMinutes") private var goalStudyMinutes: Int = 0
+    @AppStorage("goalTodos") private var goalTodos: Int = 5
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
-        VStack {
-            Text("목표 설정")
-                .font(.title)
-                .fontWeight(.bold)
-            Text("이 기능은 향후 구현될 예정입니다.")
-                .foregroundColor(.secondary)
+        VStack(spacing: 24) {
+            // 헤더
+            HStack {
+                Text(LocalizationManager.shared.localized("목표 설정"))
+                    .font(.title)
+                    .fontWeight(.bold)
+                Spacer()
+                Button("닫기") {
+                    dismiss()
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // 학습 시간 목표
+            VStack(alignment: .leading, spacing: 16) {
+                Text(LocalizationManager.shared.localized("학습 시간 목표"))
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(LocalizationManager.shared.localized("시간"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Stepper("\(goalStudyHours)\(LocalizationManager.shared.localized("시"))", value: $goalStudyHours, in: 0...24)
+                            .frame(width: 140)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(LocalizationManager.shared.localized("분"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Stepper("\(goalStudyMinutes)\(LocalizationManager.shared.localized("분"))", value: $goalStudyMinutes, in: 0...59, step: 5)
+                            .frame(width: 140)
+                    }
+                }
+                
+                // 프리셋 버튼들
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(LocalizationManager.shared.localized("프리셋"))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 12) {
+                        Button(LocalizationManager.shared.localized("4시간")) { 
+                            goalStudyHours = 4; goalStudyMinutes = 0 
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Button(LocalizationManager.shared.localized("6시간")) { 
+                            goalStudyHours = 6; goalStudyMinutes = 0 
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Button(LocalizationManager.shared.localized("8시간")) { 
+                            goalStudyHours = 8; goalStudyMinutes = 0 
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
+            
+            Divider()
+            
+            // 할 일 목표
+            VStack(alignment: .leading, spacing: 16) {
+                Text(LocalizationManager.shared.localized("할 일 목표"))
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(LocalizationManager.shared.localized("할 일 개수"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Stepper("\(goalTodos)개", value: $goalTodos, in: 0...20)
+                            .frame(width: 140)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            // 기본값으로 복원 버튼
+            HStack {
+                Spacer()
+                Button(LocalizationManager.shared.localized("기본값으로 복원")) {
+                    goalStudyHours = 6
+                    goalStudyMinutes = 0
+                    goalTodos = 5
+                }
+                .buttonStyle(.bordered)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(24)
+        .frame(minWidth: 500, minHeight: 400)
     }
 }
 

@@ -278,6 +278,31 @@ struct SidebarView: View {
             }
             
             Spacer()
+            
+            // 하루 마감 버튼
+            Divider()
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
+            
+            Button(action: onRequestEndOfDay) {
+                HStack {
+                    Image(systemName: "tray.and.arrow.down.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(hex: "E06552"))
+                    Text(LocalizationManager.shared.localized("하루 마감"))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color(hex: "E06552"))
+                    Spacer()
+                }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(hex: "E06552").opacity(0.12))
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 12)
+            .padding(.bottom, 12)
         }
         .background(Color.gray.opacity(0.05))
     }
