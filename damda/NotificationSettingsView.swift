@@ -78,20 +78,35 @@ struct NotificationSettingsView: View {
                 DatePicker("", selection: $customTime, displayedComponents: .hourAndMinute)
                     .labelsHidden()
                 
-                Button(action: {
-                    notificationManager.scheduleCustomNotification(at: customTime)
-                    showCustomNotificationSuccess = true
-                }) {
-                    Text(LocalizationManager.shared.localized("추가 알림 설정"))
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.orange)
-                        .cornerRadius(6)
+                HStack(spacing: 8) {
+                    Button(action: {
+                        notificationManager.scheduleCustomNotification(at: customTime)
+                        showCustomNotificationSuccess = true
+                    }) {
+                        Text(LocalizationManager.shared.localized("추가 알림 설정"))
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.orange)
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(!notificationManager.isNotificationsEnabled)
+                    
+                    Button(action: {
+                        notificationManager.listScheduledNotifications()
+                    }) {
+                        Text("알림 목록")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .buttonStyle(PlainButtonStyle())
-                .disabled(!notificationManager.isNotificationsEnabled)
             }
             
             Spacer()

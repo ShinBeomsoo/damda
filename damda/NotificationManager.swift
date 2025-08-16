@@ -107,8 +107,13 @@ class NotificationManager: ObservableObject {
         let hour = calendar.component(.hour, from: date)
         let minute = calendar.component(.minute, from: date)
         
+        // 고유한 identifier 생성 (시간 기반)
+        let identifier = "custom-review-\(hour)-\(minute)"
+        
+        print("🔔 사용자 정의 알림 스케줄링: \(hour):\(minute), ID: \(identifier)")
+        
         scheduleNotification(
-            identifier: "custom-review",
+            identifier: identifier,
             title: "복습 시간입니다!",
             body: "설정한 시간에 복습할 암기카드가 기다리고 있어요.",
             hour: hour,
@@ -130,15 +135,38 @@ class NotificationManager: ObservableObject {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
+        print("🔔 알림 요청 생성: \(identifier), 시간: \(hour):\(minute), 반복: \(trigger.repeats)")
+        
         UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("알림 스케줄링 오류: \(error)")
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ 알림 스케줄링 오류: \(identifier) - \(error.localizedDescription)")
+                } else {
+                    print("✅ 알림 스케줄링 성공: \(identifier)")
+                }
             }
         }
     }
     
     func removeAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        print("🔔 모든 알림 제거됨")
+    }
+    
+    func listScheduledNotifications() {
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            DispatchQueue.main.async {
+                print("🔔 현재 스케줄된 알림 개수: \(requests.count)")
+                for request in requests {
+                    if let trigger = request.trigger as? UNCalendarNotificationTrigger {
+                        let dateComponents = trigger.dateComponents
+                        print("  - \(request.identifier): \(dateComponents.hour ?? 0):\(dateComponents.minute ?? 0)")
+                    } else {
+                        print("  - \(request.identifier): 알 수 없는 트리거")
+                    }
+                }
+            }
+        }
     }
     
     func setupNotificationCategories() {
