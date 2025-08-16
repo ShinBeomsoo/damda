@@ -147,6 +147,7 @@ struct NotificationSettingsView: View {
 struct NotificationListView: View {
     let notifications: [NotificationInfo]
     let onDelete: (String) -> Void
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack(spacing: 16) {
@@ -192,7 +193,7 @@ struct NotificationListView: View {
             
             HStack {
                 Button("닫기") {
-                    // sheet를 닫기 위해 외부에서 처리
+                    dismiss()
                 }
                 .buttonStyle(PlainButtonStyle())
                     .padding(.horizontal, 16)
