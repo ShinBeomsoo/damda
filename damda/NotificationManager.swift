@@ -38,7 +38,7 @@ class NotificationManager: ObservableObject {
             DispatchQueue.main.async {
                 let wasEnabled = self.isNotificationsEnabled
                 self.isNotificationsEnabled = settings.authorizationStatus == .authorized
-                print("🔔 알림 권한 상태 확인: \(settings.authorizationStatus.rawValue) -> \(self.isNotificationsEnabled)")
+
                 
                 // 상태가 변경되었다면 UI 업데이트를 위해 objectWillChange 전송
                 if wasEnabled != self.isNotificationsEnabled {
@@ -49,12 +49,12 @@ class NotificationManager: ObservableObject {
     }
     
     func requestNotificationPermission() {
-        print("🔔 알림 권한 요청 시작")
+
         
         // 현재 권한 상태 먼저 확인
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
-                print("🔔 현재 알림 권한 상태: \(settings.authorizationStatus.rawValue)")
+
                 
                 switch settings.authorizationStatus {
                 case .notDetermined:
@@ -62,25 +62,25 @@ class NotificationManager: ObservableObject {
                     self.requestAuthorization()
                 case .denied:
                     // 권한이 거부된 경우 시스템 환경설정 안내
-                    print("🔔 알림 권한이 거부됨 - 시스템 환경설정에서 수동으로 허용 필요")
+
                     self.isNotificationsEnabled = false
                 case .authorized:
                     // 이미 권한이 허용된 경우
-                    print("🔔 이미 알림 권한이 허용됨")
+
                     self.isNotificationsEnabled = true
                     self.scheduleDefaultNotifications()
                 case .provisional:
                     // 임시 권한
-                    print("🔔 임시 알림 권한")
+
                     self.isNotificationsEnabled = true
                     self.scheduleDefaultNotifications()
                 case .ephemeral:
                     // 일시적 권한
-                    print("🔔 일시적 알림 권한")
+
                     self.isNotificationsEnabled = true
                     self.scheduleDefaultNotifications()
                 @unknown default:
-                    print("🔔 알 수 없는 권한 상태")
+
                     self.isNotificationsEnabled = false
                 }
                 
@@ -93,7 +93,7 @@ class NotificationManager: ObservableObject {
     private func requestAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
-                print("🔔 알림 권한 요청 결과: \(granted), 오류: \(error?.localizedDescription ?? "없음")")
+
                 self.isNotificationsEnabled = granted
                 if granted {
                     self.scheduleDefaultNotifications()
@@ -132,7 +132,7 @@ class NotificationManager: ObservableObject {
         // 고유한 identifier 생성 (시간 기반)
         let identifier = "custom-review-\(hour)-\(minute)"
         
-        print("🔔 사용자 정의 알림 스케줄링: \(hour):\(minute), ID: \(identifier)")
+
         
         scheduleNotification(
             identifier: identifier,
@@ -157,14 +157,14 @@ class NotificationManager: ObservableObject {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
-        print("🔔 알림 요청 생성: \(identifier), 시간: \(hour):\(minute), 반복: \(trigger.repeats)")
+
         
         UNUserNotificationCenter.current().add(request) { error in
             DispatchQueue.main.async {
                 if let error = error {
-                    print("❌ 알림 스케줄링 오류: \(identifier) - \(error.localizedDescription)")
+                    // 알림 스케줄링 오류 발생 (필요시 로깅)
                 } else {
-                    print("✅ 알림 스케줄링 성공: \(identifier)")
+                    // 알림 스케줄링 성공
                 }
             }
         }
@@ -172,12 +172,12 @@ class NotificationManager: ObservableObject {
     
     func removeAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        print("🔔 모든 알림 제거됨")
+
     }
     
     func removeNotification(withIdentifier identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-        print("🔔 알림 제거됨: \(identifier)")
+
     }
     
     func listScheduledNotifications(completion: @escaping ([NotificationInfo]) -> Void) {
