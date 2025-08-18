@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct TodoListView: View {
     @ObservedObject var todoManager: TodoManagerObservable
@@ -13,6 +14,11 @@ struct TodoListView: View {
     @State private var editingText: String = ""
     @State private var editingPriority: Int = 5
     @State private var renderTrigger = false
+
+    // Google Calendar 읽기 전용 섹션 상태
+    @StateObject private var googleCalendarService = GoogleCalendarService()
+    @State private var googleTodayEvents: [CalendarEvent] = []
+    @State private var isLoadingGoogleEvents = false
 
     var sortedTodos: [Todo] {
         // 오늘 기준 표시 정책:
@@ -35,6 +41,74 @@ struct TodoListView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // 오늘의 Google 일정 (읽기 전용)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.plus")
+                        .foregroundColor(.green)
+                    Text("오늘의 Google 일정")
+                        .font(.pretendard(16, weight: .semibold))
+                        .foregroundColor(.green)
+                    Spacer()
+                    if isLoadingGoogleEvents {
+                        ProgressView().scaleEffect(0.7)
+                    } else if googleCalendarService.isAuthenticated {
+                        Button(action: { loadTodayGoogleEvents() }) {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.green)
+                    } else {
+                        Button(action: { Task { _ = try? await googleCalendarService.authenticate(); loadTodayGoogleEvents() } }) {
+                            Text("연동")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                if googleCalendarService.isAuthenticated {
+                    if googleTodayEvents.isEmpty && !isLoadingGoogleEvents {
+                        Text("오늘 일정이 없습니다")
+                            .font(.pretendard(12))
+                            .foregroundColor(.secondary)
+                    } else {
+                        VStack(spacing: 6) {
+                            ForEach(googleTodayEvents, id: \.id) { ev in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Circle().fill(Color.green).frame(width: 6, height: 6)
+                                        .padding(.top, 6)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(ev.title)
+                                            .font(.pretendard(13, weight: .medium))
+                                            .foregroundColor(.primary)
+                                        Text(googleEventTimeRange(ev.startDate, ev.endDate))
+                                            .font(.pretendard(11))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.vertical, 4)
+                                Divider()
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(12)
+            .background(Color.green.opacity(0.08))
+            .cornerRadius(10)
+            .onAppear {
+                // 뷰 표시 시, 인증되어 있으면 오늘 일정 로드
+                if googleCalendarService.isAuthenticated {
+                    loadTodayGoogleEvents()
+                }
+            }
+
             Text(LocalizationManager.shared.localized("오늘의 할 일"))
                 .font(.pretendard(18, weight: .semibold))
 
@@ -59,6 +133,35 @@ struct TodoListView: View {
         .padding()
         .background(Color.gray.opacity(0.12))
         .cornerRadius(12)
+    }
+
+    // MARK: - Google Helpers
+    private func loadTodayGoogleEvents() {
+        guard googleCalendarService.isAuthenticated else { return }
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: Date())
+        let end = cal.date(byAdding: .day, value: 1, to: start) ?? start
+        Task {
+            isLoadingGoogleEvents = true
+            do {
+                let events = try await googleCalendarService.fetchEvents(from: start, to: end)
+                await MainActor.run {
+                    self.googleTodayEvents = events
+                    self.isLoadingGoogleEvents = false
+                }
+            } catch {
+                await MainActor.run { self.isLoadingGoogleEvents = false }
+                print("오늘 Google 일정 로드 실패: \(error)")
+            }
+        }
+    }
+
+    private func googleEventTimeRange(_ start: Date, _ end: Date) -> String {
+        let df = DateFormatter()
+        df.locale = Locale.current
+        df.dateStyle = .none
+        df.timeStyle = .short
+        return "\(df.string(from: start)) - \(df.string(from: end))"
     }
     func priorityColor(_ value: Int) -> Color {
         switch value {

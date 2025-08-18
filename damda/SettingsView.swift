@@ -7,6 +7,7 @@ struct SettingsView: View {
     @AppStorage("appLanguageCode") private var appLanguageCode: String = Locale.preferredLanguages.first ?? "ko"
     @State private var showNotificationSettings = false
     @State private var showGoalSettings = false
+    @State private var showGoogleCalendarSettings = false
     
     var body: some View {
         ScrollView {
@@ -169,6 +170,35 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                // Google Calendar 연동 설정
+                SettingsSection(
+                    title: "Google Calendar",
+                    icon: "calendar.badge.plus",
+                    color: .green
+                ) {
+                    VStack(spacing: 16) {
+                        SettingsRow(
+                            icon: "calendar.badge.plus",
+                            iconColor: .green,
+                            title: "Google Calendar 연동",
+                            subtitle: "damda와 Google Calendar를 연동하여 일정을 동기화하세요"
+                        ) {
+                            Button(action: {
+                                showGoogleCalendarSettings.toggle()
+                            }) {
+                                Text("설정")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.green)
+                                    .cornerRadius(6)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                }
             }
             .padding()
         }
@@ -177,6 +207,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showGoalSettings) {
             GoalSettingsView()
+        }
+        .sheet(isPresented: $showGoogleCalendarSettings) {
+            GoogleCalendarSettingsView()
         }
     }
 }

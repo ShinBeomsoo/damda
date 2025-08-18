@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		448D50C52E507723005194C9 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 448D50C42E507723005194C9 /* GoogleSignIn */; };
+		448D50C72E507723005194C9 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 448D50C62E507723005194C9 /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		44C6781E2E437B0C0078C5B5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -105,6 +110,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				448D50C52E507723005194C9 /* GoogleSignIn in Frameworks */,
+				448D50C72E507723005194C9 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,6 +199,8 @@
 			);
 			name = damda;
 			packageProductDependencies = (
+				448D50C42E507723005194C9 /* GoogleSignIn */,
+				448D50C62E507723005194C9 /* GoogleSignInSwift */,
 			);
 			productName = damda;
 			productReference = 44C6780F2E437B0B0078C5B5 /* damda.app */;
@@ -355,6 +364,9 @@
 			);
 			mainGroup = 44C678062E437B0B0078C5B5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				448D50C32E507723005194C9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 44C678102E437B0B0078C5B5 /* Products */;
 			projectDirPath = "";
@@ -608,9 +620,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = damda/damda.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9BDNF96Q4S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = damda/Info.plist;
@@ -634,9 +648,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = damda/damda.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9BDNF96Q4S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = damda/Info.plist;
@@ -899,6 +915,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		448D50C32E507723005194C9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		448D50C42E507723005194C9 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 448D50C32E507723005194C9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		448D50C62E507723005194C9 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 448D50C32E507723005194C9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 44C678072E437B0B0078C5B5 /* Project object */;
 }
